@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #f97316; /* Lighter Orange for a more vibrant, modern look */
+  --color-primary-hover: #ea580c;
+  --color-primary-light: #ffedd5;
+  --image-bg-gradient: radial-gradient(circle at top right, #fffaf5, #ffffff);
+  --color-glass: rgba(255, 255, 255, 0.65);
+  --color-glass-border: rgba(0, 0, 0, 0.05);
+  --font-inter: "Inter", "Roboto", system-ui, -apple-system, sans-serif;
+  --animate-fade-in-up: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-slide-down: slideDown 0.3s ease-out forwards;
+}
+
+@layer base {
+  :root {
+    font-family: var(--font-inter);
+    color-scheme: light;
+    background: var(--image-bg-gradient);
+    color: #0c0a09; /* Very dark slate/black */
+  }
+
+  body {
+    @apply m-0 p-0 block min-h-screen min-w-[320px] bg-white;
+  }
+
+  #root {
+    @apply w-full m-0 p-0;
+  }
+}
+
+@layer components {
+  .welcome-container {
+    @apply flex flex-col items-center justify-center gap-6 rounded-[32px] border border-glass-border bg-glass p-16 px-8 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)];
+  }
+
+  .badge {
+    @apply rounded-full border border-[rgba(251,146,60,0.2)] bg-[rgba(251,146,60,0.1)] px-4 py-2 text-sm font-semibold tracking-widest text-primary uppercase;
+  }
+
+  .glow {
+    @apply pointer-events-none absolute -z-10 h-[400px] w-[400px] bg-primary opacity-10 blur-[150px];
+  }
+
+  .dark-border {
+    @apply border border-black/10 transition-colors focus:border-black/30;
+  }
+}
+
+/* Custom Utilities */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {  
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom Animation for Scanner */
+@keyframes scanning {
+  0% { top: 0%; opacity: 0.2; }
+  50% { opacity: 1; }
+  100% { top: 100%; opacity: 0.2; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-scan {
+  animation: scanning 2s ease-in-out infinite;
+}
+
+.animate-in-up {
+  animation: var(--animate-fade-in-up);
+}
