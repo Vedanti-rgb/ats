@@ -3,19 +3,19 @@ import { useParams, useNavigate } from 'react-router-dom';
 import testService from '../../services/testService';
 import Navbar from '../../components/common/Navbar';
 import Button from '../../components/common/Button';
-import { 
-  Loader2, 
-  ArrowLeft, 
-  CheckCircle, 
-  Camera, 
-  Shield, 
-  ShieldAlert, 
-  AlertTriangle, 
-  ChevronRight, 
-  ChevronLeft, 
-  Terminal, 
-  UserCheck, 
-  RefreshCw, 
+import {
+  Loader2,
+  ArrowLeft,
+  CheckCircle,
+  Camera,
+  Shield,
+  ShieldAlert,
+  AlertTriangle,
+  ChevronRight,
+  ChevronLeft,
+  Terminal,
+  UserCheck,
+  RefreshCw,
   Play,
   Video
 } from 'lucide-react';
@@ -62,7 +62,7 @@ const TestPage = () => {
       setError('');
       const data = await testService.generateTest(resumeId);
       setTest(data.test);
-      
+
       // Initialize answer states
       const initialAnswers = {};
       data.test.questions.forEach(q => {
@@ -88,8 +88,8 @@ const TestPage = () => {
         videoRef.current.srcObject = stream;
       }
       addLog('Webcam initialized successfully.');
-    } catch (err) {
-      console.error("Camera permission denied", err);
+    } catch (_err) {
+      console.error("Camera permission denied", _err);
       setError('Web camera access is strictly required to proceed with this proctored interview. Please enable browser camera permissions.');
     } finally {
       setIsCameraStarting(false);
@@ -114,7 +114,7 @@ const TestPage = () => {
         await elem.msRequestFullscreen();
       }
       addLog('Secure Fullscreen mode locked.');
-    } catch (err) {
+    } catch {
       addLog('WARNING: Fullscreen request failed. Please stay focused.');
     }
 
@@ -206,7 +206,7 @@ const TestPage = () => {
 
       // Exit fullscreen
       if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
+        document.exitFullscreen().catch(() => { });
       }
 
       // Stop camera stream
@@ -226,8 +226,8 @@ const TestPage = () => {
         cheatingDetected: totalTabSwitches >= 3 || totalFullscreenExits >= 2,
       });
 
-      setResult({ 
-        score: data.score, 
+      setResult({
+        score: data.score,
         feedback: data.feedback,
         tabSwitchesCount: totalTabSwitches,
         fullscreenExitsCount: totalFullscreenExits,
@@ -287,7 +287,7 @@ const TestPage = () => {
 
       <div className="max-w-6xl mx-auto px-4 py-8 mt-20">
         {!isTestStarted && !result && (
-          <button 
+          <button
             onClick={() => navigate('/dashboard')}
             className="flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-8 transition-colors text-sm font-medium"
           >
@@ -379,19 +379,19 @@ const TestPage = () => {
                 </div>
 
                 <div className="aspect-video w-full max-h-[220px] bg-slate-900 rounded-xl overflow-hidden relative flex items-center justify-center">
-                  <video 
-                    ref={videoRef} 
-                    autoPlay 
-                    playsInline 
-                    muted 
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
                     className="w-full h-full object-cover"
                   />
                   {!cameraPermissionGranted && (
                     <div className="absolute inset-0 bg-slate-950/80 flex flex-col items-center justify-center p-4 text-center">
                       <Camera size={36} className="text-slate-400 mb-2" />
                       <p className="text-white text-sm font-medium mb-3">Permission is required to view your camera stream</p>
-                      <Button 
-                        onClick={requestCameraPermission} 
+                      <Button
+                        onClick={requestCameraPermission}
                         className="py-2.5 px-4 text-xs font-semibold"
                         disabled={isCameraStarting}
                       >
@@ -407,8 +407,8 @@ const TestPage = () => {
               <Button onClick={() => navigate('/dashboard')} className="bg-transparent hover:bg-slate-200 text-slate-700 px-6 py-2.5 border border-slate-300">
                 Cancel
               </Button>
-              <Button 
-                onClick={handleStartTest} 
+              <Button
+                onClick={handleStartTest}
                 disabled={!cameraPermissionGranted}
                 className="px-8 py-2.5 font-bold"
               >
@@ -421,10 +421,10 @@ const TestPage = () => {
         {/* State 3: Active Interactive Proctored Testing Interface */}
         {test && isTestStarted && !result && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            
+
             {/* Left/Middle Columns: Single Question Interactive Area */}
             <div className="lg:col-span-2 space-y-6">
-              
+
               {/* Timeline Header Navigation */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
                 <div className="flex items-center justify-between mb-4">
@@ -442,13 +442,12 @@ const TestPage = () => {
                       <button
                         key={q.id}
                         onClick={() => setActiveQuestionIndex(idx)}
-                        className={`w-11 h-11 flex items-center justify-center text-xs font-bold rounded-xl border transition-all ${
-                          isActive 
-                            ? 'bg-slate-900 border-slate-900 text-white shadow-sm scale-105' 
-                            : isAnswered 
-                              ? 'bg-orange-50 border-orange-200 text-orange-700 font-extrabold' 
-                              : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
-                        }`}
+                        className={`w-11 h-11 flex items-center justify-center text-xs font-bold rounded-xl border transition-all ${isActive
+                          ? 'bg-slate-900 border-slate-900 text-white shadow-sm scale-105'
+                          : isAnswered
+                            ? 'bg-orange-50 border-orange-200 text-orange-700 font-extrabold'
+                            : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
+                          }`}
                       >
                         Q{idx + 1}
                       </button>
@@ -494,14 +493,14 @@ const TestPage = () => {
                   </button>
 
                   {activeQuestionIndex < test.questions.length - 1 ? (
-                    <Button 
+                    <Button
                       onClick={() => setActiveQuestionIndex(prev => prev + 1)}
                       className="flex items-center gap-1 text-sm font-semibold px-6 py-2.5"
                     >
                       Next Question <ChevronRight size={16} />
                     </Button>
                   ) : (
-                    <Button 
+                    <Button
                       onClick={handleSubmit}
                       disabled={isSubmitting}
                       className="px-8 py-2.5 font-bold shadow-lg shadow-orange-500/10"
@@ -521,7 +520,7 @@ const TestPage = () => {
 
             {/* Right Column: Secure Proctoring Hub Console */}
             <div className="space-y-6">
-              
+
               {/* Webcam Live Frame */}
               <div className="bg-slate-900 text-white rounded-2xl shadow-lg border border-slate-800 p-5 relative overflow-hidden">
                 <div className="absolute top-4 left-4 z-10 flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-full border border-slate-800">
@@ -530,11 +529,11 @@ const TestPage = () => {
                 </div>
 
                 <div className="aspect-video w-full bg-slate-950 rounded-xl overflow-hidden relative mt-12 mb-4">
-                  <video 
-                    ref={videoRef} 
-                    autoPlay 
-                    playsInline 
-                    muted 
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
                     className="w-full h-full object-cover scale-x-[-1]"
                   />
                   {/* Subtle terminal-like visual overlays */}
@@ -585,7 +584,7 @@ const TestPage = () => {
         {/* State 4: Security Result Assessment View */}
         {result && (
           <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden max-w-4xl mx-auto transform transition-all animate-fadeIn">
-            
+
             {/* Header banner indicating overall score */}
             <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-8 text-center text-white relative">
               <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-md border border-white/10 px-4 py-1.5 rounded-full flex items-center gap-2 text-xs font-semibold">
@@ -594,14 +593,14 @@ const TestPage = () => {
 
               <CheckCircle className="w-14 h-14 mx-auto mb-3 text-orange-500" />
               <h2 className="text-xs font-bold tracking-widest uppercase mb-1 opacity-70">Evaluated score</h2>
-              
+
               <div className="text-7xl font-black flex items-center justify-center gap-2 tracking-tighter">
                 {result.score} <span className="text-2xl font-semibold opacity-50">/ 100</span>
               </div>
             </div>
 
             <div className="p-8 md:p-10 grid grid-cols-1 md:grid-cols-3 gap-8">
-              
+
               {/* Feedback details */}
               <div className="md:col-span-2 space-y-6">
                 <h3 className="text-xl font-bold text-slate-900 border-b border-slate-100 pb-2">AI Recruiter Evaluation</h3>
@@ -615,7 +614,7 @@ const TestPage = () => {
               {/* Proctoring Scorecard Details */}
               <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-5">
                 <h3 className="text-sm font-extrabold text-slate-800 tracking-wider uppercase border-b border-slate-200 pb-2">Security Audit Report</h3>
-                
+
                 <div className="space-y-4">
                   <div className="flex justify-between items-center bg-white p-3.5 rounded-xl border border-slate-100">
                     <span className="text-xs font-semibold text-slate-500">Integrity Rating</span>
@@ -684,7 +683,7 @@ const TestPage = () => {
             <p className="text-slate-500 text-sm leading-relaxed mb-6">
               This exam is strictly live-proctored. Any tab switching, application minimizing, window switching, or exiting fullscreen mode is logged as a security breach. Continued violations will severely lower your AI-assessed interview score.
             </p>
-            <Button 
+            <Button
               onClick={async () => {
                 setIsCheatingModalOpen(false);
                 // Attempt to re-enforce fullscreen
@@ -697,8 +696,8 @@ const TestPage = () => {
                       await elem.webkitRequestFullscreen();
                     }
                   }
-                } catch(e) {}
-              }} 
+                } catch { /* intentionally empty */ }
+              }}
               className="bg-rose-600 hover:bg-rose-700 text-white w-full py-3 rounded-xl font-bold"
             >
               I Understand, Resume Test

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
 import useResumeStore from '../../store/useResumeStore';
 import Sidebar from '../../components/dashboard/Sidebar';
 import { useAuth } from '../../context/AuthContext';
@@ -10,10 +10,10 @@ import TemplateCard from '../../components/dashboard/TemplateCard';
 import ServiceCard from '../../components/dashboard/ServiceCard';
 import AdminPortal from '../../components/dashboard/AdminPortal';
 import Button from '../../components/common/Button';
-import { 
-  PlusCircle, 
-  Search, 
-  Sparkles, 
+import {
+  PlusCircle,
+  Search,
+  Sparkles,
   Target,
   Loader2,
   Shield
@@ -25,20 +25,13 @@ const DashboardPage = () => {
   const navigate = useNavigate();
   const { resumeList, fetchResumes, resetResume, isLoading } = useResumeStore();
   const { user } = useAuth();
-  
+
   // State to toggle between Candidate view and Admin view
-  const [isAdminView, setIsAdminView] = useState(user?.isAdmin || false);
+  const isAdminView = user?.isAdmin || false;
 
   useEffect(() => {
     fetchResumes();
   }, [fetchResumes]);
-
-  // Sync state if user loads later
-  useEffect(() => {
-    if (user?.isAdmin) {
-      setIsAdminView(true);
-    }
-  }, [user]);
 
   const handleCreateNew = () => {
     resetResume();
@@ -56,20 +49,20 @@ const DashboardPage = () => {
   ];
 
   const services = [
-    { 
-      title: 'ATS Score Checker', 
-      desc: 'Verify if your resume passes the automated screening systems.', 
-      icon: Search 
+    {
+      title: 'ATS Score Checker',
+      desc: 'Verify if your resume passes the automated screening systems.',
+      icon: Search
     },
-    { 
-      title: 'AI Suggestions', 
-      desc: 'Get smart recommendations to improve your bullet points.', 
-      icon: Sparkles 
+    {
+      title: 'AI Suggestions',
+      desc: 'Get smart recommendations to improve your bullet points.',
+      icon: Sparkles
     },
-    { 
-      title: 'Resume Optimization', 
-      desc: 'Fine-tune your resume for specific job descriptions.', 
-      icon: Target 
+    {
+      title: 'Resume Optimization',
+      desc: 'Fine-tune your resume for specific job descriptions.',
+      icon: Target
     },
   ];
 
@@ -112,7 +105,7 @@ const DashboardPage = () => {
                     <span className="text-sm font-semibold text-stone-400 uppercase tracking-widest">{resumeList.length} Resumes</span>
                   )}
                 </div>
-                
+
                 {isLoading ? (
                   <div className="flex h-40 items-center justify-center">
                     <Loader2 className="animate-spin text-orange-500" size={32} />
@@ -121,7 +114,7 @@ const DashboardPage = () => {
                   <div className="flex gap-4 md:gap-8 overflow-x-auto pb-8 scroll-smooth snap-x snap-mandatory scrollbar-hide px-2">
                     {resumeList.map(resume => (
                       <div key={resume._id} className="snap-start shrink-0 pointer-events-auto">
-                        <ResumeCard 
+                        <ResumeCard
                           resume={resume}
                         />
                       </div>
@@ -138,8 +131,8 @@ const DashboardPage = () => {
                 <div className="flex gap-4 md:gap-8 overflow-x-auto pb-8 scroll-smooth snap-x snap-mandatory scrollbar-hide px-2">
                   {templates.map(temp => (
                     <div key={temp.id} className="snap-start shrink-0">
-                      <TemplateCard 
-                        name={temp.name} 
+                      <TemplateCard
+                        name={temp.name}
                         templateId={temp.templateId}
                       />
                     </div>
@@ -154,11 +147,11 @@ const DashboardPage = () => {
                 <h2 className="text-2xl font-semibold text-black mb-6">Our Services</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 text-left">
                   {services.map(service => (
-                    <ServiceCard 
-                      key={service.title} 
-                      title={service.title} 
-                      desc={service.desc} 
-                      icon={service.icon} 
+                    <ServiceCard
+                      key={service.title}
+                      title={service.title}
+                      desc={service.desc}
+                      icon={service.icon}
                     />
                   ))}
                 </div>

@@ -36,7 +36,7 @@ export const downloadAsPDF = async (elementId, fileName = 'resume.pdf') => {
                         if (computed.color) el.style.color = computed.color;
                         if (computed.backgroundColor) el.style.backgroundColor = computed.backgroundColor;
                         if (computed.borderColor) el.style.borderColor = computed.borderColor;
-                    } catch (e) {
+                    } catch {
                         // Ignore elements that can't be styled
                     }
                 }
@@ -47,7 +47,7 @@ export const downloadAsPDF = async (elementId, fileName = 'resume.pdf') => {
         window.scrollTo(0, originalScrollPos);
 
         const imgData = canvas.toDataURL('image/png', 1.0);
-        
+
         // A4 dimensions in px at 72 DPI are roughly 595 x 842
         const pdf = new jsPDF({
             orientation: 'portrait',
@@ -63,7 +63,7 @@ export const downloadAsPDF = async (elementId, fileName = 'resume.pdf') => {
         // For a more advanced multi-page solution, we would need to slice the canvas.
         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
         pdf.save(fileName);
-        
+
         return true;
     } catch (error) {
         console.error('Error generating PDF:', error);

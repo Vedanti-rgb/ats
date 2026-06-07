@@ -5,7 +5,6 @@ import {
   RotateCcw, TrendingUp, Zap, ChevronDown, ChevronUp
 } from 'lucide-react';
 
-// ─── Helper: score color ──────────────────────────────────────────────────────
 const getScoreColor = (score) => {
   if (score >= 80) return { text: 'text-green-500', bg: 'bg-green-500', ring: 'ring-green-200', badge: 'bg-green-50 text-green-700 border-green-100' };
   if (score >= 60) return { text: 'text-orange-500', bg: 'bg-orange-500', ring: 'ring-orange-200', badge: 'bg-orange-50 text-orange-700 border-orange-100' };
@@ -18,7 +17,6 @@ const statusIcon = (status) => {
   return <XCircle size={14} className="text-red-500 flex-shrink-0" />;
 };
 
-// ─── Circular Score Ring ──────────────────────────────────────────────────────
 const ScoreRing = ({ score }) => {
   const colors = getScoreColor(score);
   const radius = 54;
@@ -46,9 +44,8 @@ const ScoreRing = ({ score }) => {
   );
 };
 
-// ─── Main Component ───────────────────────────────────────────────────────────
 const ATSChecker = () => {
-  const [phase, setPhase] = useState('idle'); // idle | uploading | result | error
+  const [phase, setPhase] = useState('idle');
   const [dragOver, setDragOver] = useState(false);
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
@@ -56,7 +53,6 @@ const ATSChecker = () => {
   const [showBreakdown, setShowBreakdown] = useState(false);
   const fileInputRef = useRef(null);
 
-  // ─── File validation ────────────────────────────────────────────────────────
   const validateFile = (f) => {
     const allowed = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     if (!allowed.includes(f.type)) {
@@ -72,7 +68,23 @@ const ATSChecker = () => {
     return true;
   };
 
-  // ─── Handle file selection ──────────────────────────────────────────────────
+  const uploadFile = async (f) => {
+    setPhase('uploading');
+    const formData = new FormData();
+    formData.append('resume', f);
+    try {
+      const { data } = await axios.post('http://localhost:5000/api/ats/analyze', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setResult(data);
+      setPhase('result');
+    } catch (_err) {
+      const msg = _err.response?.data?.message || 'Something went wrong. Please try again.';
+      setErrorMsg(`❌ ${msg}`);
+      setPhase('error');
+    }
+  };
+
   const handleFile = useCallback((f) => {
     if (!f) return;
     setErrorMsg('');
@@ -89,25 +101,6 @@ const ATSChecker = () => {
     handleFile(e.dataTransfer.files[0]);
   };
 
-  // ─── Upload & Analyze ───────────────────────────────────────────────────────
-  const uploadFile = async (f) => {
-    setPhase('uploading');
-    const formData = new FormData();
-    formData.append('resume', f);
-
-    try {
-      const { data } = await axios.post('http://localhost:5000/api/ats/analyze', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setResult(data);
-      setPhase('result');
-    } catch (err) {
-      const msg = err.response?.data?.message || 'Something went wrong. Please try again.';
-      setErrorMsg(`❌ ${msg}`);
-      setPhase('error');
-    }
-  };
-
   const reset = () => {
     setPhase('idle');
     setFile(null);
@@ -117,13 +110,9 @@ const ATSChecker = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // RENDER
-  // ─────────────────────────────────────────────────────────────────────────────
   return (
     <div className="mt-10 rounded-3xl border border-black/[0.06] bg-stone-50/80 overflow-hidden shadow-xl backdrop-blur-sm">
 
-      {/* Header bar */}
       <div className="flex items-center justify-between px-8 py-5 border-b border-black/[0.06] bg-white">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-xl bg-orange-100">
@@ -146,7 +135,6 @@ const ATSChecker = () => {
 
       <div className="p-8">
 
-        {/* ── IDLE: Drop Zone ── */}
         {phase === 'idle' && (
           <div
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -183,7 +171,6 @@ const ATSChecker = () => {
           </div>
         )}
 
-        {/* ── UPLOADING: Scanning Animation ── */}
         {phase === 'uploading' && (
           <div className="flex flex-col items-center gap-8 py-10">
             <div className="relative w-32 h-40 bg-white rounded-xl border-2 border-dashed border-orange-200 shadow-sm flex items-center justify-center overflow-hidden">
@@ -201,7 +188,6 @@ const ATSChecker = () => {
           </div>
         )}
 
-        {/* ── ERROR ── */}
         {phase === 'error' && (
           <div className="flex flex-col items-center gap-6 py-10 text-center">
             <div className="p-5 rounded-2xl bg-red-50 border border-red-100">
@@ -220,13 +206,10 @@ const ATSChecker = () => {
           </div>
         )}
 
-        {/* ── RESULT ── */}
         {phase === 'result' && result && (() => {
           const colors = getScoreColor(result.score);
           return (
             <div className="flex flex-col gap-7 animate-in fade-in duration-500">
-
-              {/* Score Row */}
               <div className="flex flex-col sm:flex-row items-center gap-6 p-6 bg-white rounded-2xl border border-black/[0.06] shadow-sm">
                 <ScoreRing score={result.score} />
                 <div className="flex-1 text-center sm:text-left">
@@ -242,7 +225,6 @@ const ATSChecker = () => {
                 </div>
               </div>
 
-              {/* Missing Keywords */}
               {result.missingKeywords?.length > 0 && (
                 <div className="p-5 rounded-2xl bg-orange-50 border border-orange-100">
                   <h4 className="font-bold text-orange-900 mb-3 flex items-center gap-2 text-sm">
@@ -258,7 +240,6 @@ const ATSChecker = () => {
                 </div>
               )}
 
-              {/* Recommendations */}
               {result.recommendations?.length > 0 && (
                 <div className="p-5 rounded-2xl bg-white border border-black/[0.06] shadow-sm space-y-3">
                   <h4 className="font-bold text-black mb-1 flex items-center gap-2 text-sm">
@@ -273,7 +254,6 @@ const ATSChecker = () => {
                 </div>
               )}
 
-              {/* Section Breakdown (Collapsible) */}
               <div className="rounded-2xl border border-black/[0.06] overflow-hidden bg-white shadow-sm">
                 <button
                   className="w-full flex items-center justify-between px-5 py-4 font-bold text-sm text-black hover:bg-stone-50 transition-colors"
@@ -297,7 +277,6 @@ const ATSChecker = () => {
                 )}
               </div>
 
-              {/* Analyze Another */}
               <button
                 onClick={reset}
                 className="w-full flex items-center justify-center gap-2 bg-black text-white font-bold py-3.5 rounded-xl hover:bg-stone-800 transition-colors text-sm"

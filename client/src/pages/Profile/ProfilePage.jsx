@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Sidebar from '../../components/dashboard/Sidebar';
 import { useResume } from '../../context/ResumeContext';
 import Button from '../../components/common/Button';
@@ -47,7 +47,7 @@ const TABS = [
 
 const AddDataModal = ({ show, section, onClose, onSubmit }) => {
   if (!show) return null;
-  
+
   const sectionTitles = {
     education: 'Education',
     experience: 'Work Experience',
@@ -64,19 +64,19 @@ const AddDataModal = ({ show, section, onClose, onSubmit }) => {
             <X size={20} />
           </button>
         </div>
-        
+
         <p className="text-stone-500 text-sm font-medium mb-8">
           Create a new entry for your {section}. You can fill in the details immediately after adding.
         </p>
 
         <div className="flex flex-col gap-3">
-          <Button 
-            onClick={onSubmit} 
+          <Button
+            onClick={onSubmit}
             className="w-full py-4 bg-orange-500 hover:bg-orange-600 font-black uppercase tracking-widest text-xs"
           >
             Confirm & Add
           </Button>
-          <button 
+          <button
             onClick={onClose}
             className="w-full py-4 text-stone-400 font-black uppercase tracking-widest text-[10px] hover:text-black transition-colors"
           >
@@ -193,7 +193,7 @@ const ResumeDataSection = ({ resumeData, syncing, handleSync, openAddModal, hand
             <div className="p-2.5 bg-green-50 text-green-600 rounded-xl"><Code size={22} /></div>
             <h3 className="text-xl font-black text-black">Core Skills</h3>
           </div>
-          <input 
+          <input
             className="px-4 py-2 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold focus:outline-none focus:border-green-500 transition-all"
             placeholder="Type & Press Enter"
             onKeyDown={(e) => {
@@ -344,22 +344,22 @@ const SettingsSection = () => {
 // --- Main Page Component ---
 
 const ProfilePage = () => {
-  const { 
-    resumeData, 
-    updatePersonalInfo, 
-    syncProfileWithBackend, 
+  const {
+    resumeData,
+    updatePersonalInfo,
+    syncProfileWithBackend,
     loading: contextLoading,
     addEntry,
     removeEntry,
     updateEntry,
     setResumeData
   } = useResume();
-  
+
   const [activeTab, setActiveTab] = useState('profile');
   const [showSuccess, setShowSuccess] = useState(false);
   const [localError, setLocalError] = useState('');
   const [syncing, setSyncing] = useState(false);
-  
+
   // State for Add Modal
   const [showAddModal, setShowAddModal] = useState(false);
   const [modalSection, setModalSection] = useState(null);
@@ -451,7 +451,7 @@ const ProfilePage = () => {
           ) : (
             <>
               {activeTab === 'profile' && (
-                <ProfileSection 
+                <ProfileSection
                   resumeData={resumeData}
                   isLive={isLive}
                   isLocked={isLocked}
@@ -463,7 +463,7 @@ const ProfilePage = () => {
                 />
               )}
               {activeTab === 'resume' && (
-                <ResumeDataSection 
+                <ResumeDataSection
                   resumeData={resumeData}
                   syncing={syncing}
                   handleSync={handleSync}
@@ -479,7 +479,7 @@ const ProfilePage = () => {
           )}
         </div>
       </main>
-      <AddDataModal 
+      <AddDataModal
         show={showAddModal}
         section={modalSection}
         onClose={closeAddModal}

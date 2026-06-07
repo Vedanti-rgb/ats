@@ -1,5 +1,5 @@
 import React from 'react';
-import useResumeStore from '../store/useResumeStore';
+// import useResumeStore from '../store/useResumeStore';
 
 /**
  * A Master Generative Engine that reads AI output JSON and maps it
@@ -82,7 +82,7 @@ const AIGeneratedTemplate = ({ data, themeConfig }) => {
   // Render logic structured based on grid Layout
   const isSidebarLeft = layout === 'sidebar-left';
   const isSidebarRight = layout === 'sidebar-right';
-  const isSingleCol = layout === 'single-column';
+  // const isSingleCol = layout === 'single-column';
   // Specific components mappings
   const renderHeader = (isSidebar) => (
     <div className={`mb-6 ${isSidebar ? '' : 'text-center border-b pb-4'}`} style={{ borderColor: isSidebar ? 'transparent' : secondaryColor }}>
@@ -90,9 +90,9 @@ const AIGeneratedTemplate = ({ data, themeConfig }) => {
         {displayData?.personalInfo?.name}
       </h1>
       <p className={`text-xs font-semibold ${isSidebar ? 'opacity-80' : ''}`} style={{ color: isSidebar ? '#ffffff' : secondaryColor }}>
-        {displayData?.personalInfo?.email} <br className={isSidebar ? 'block' : 'hidden'}/>
+        {displayData?.personalInfo?.email} <br className={isSidebar ? 'block' : 'hidden'} />
         {!isSidebar && ' | '}
-        {displayData?.personalInfo?.phone} <br className={isSidebar ? 'block' : 'hidden'}/>
+        {displayData?.personalInfo?.phone} <br className={isSidebar ? 'block' : 'hidden'} />
         {!isSidebar && ' | '}
         {displayData?.personalInfo?.location}
       </p>
@@ -168,8 +168,8 @@ const AIGeneratedTemplate = ({ data, themeConfig }) => {
         {renderSectionHeader('Skills', overrideColor)}
         <div className="flex flex-wrap gap-2">
           {displayData.skills.map((skill, index) => (
-            <span key={index} className={`text-[10px] font-bold px-2 py-1 ${borderRadius}`} style={{ 
-              backgroundColor: overrideColor ? 'rgba(255,255,255,0.1)' : primaryColor + '15', 
+            <span key={index} className={`text-[10px] font-bold px-2 py-1 ${borderRadius}`} style={{
+              backgroundColor: overrideColor ? 'rgba(255,255,255,0.1)' : primaryColor + '15',
               color: overrideColor || primaryColor,
               border: overrideColor ? '1px solid rgba(255,255,255,0.2)' : 'none'
             }}>
@@ -203,16 +203,16 @@ const AIGeneratedTemplate = ({ data, themeConfig }) => {
   if (isSidebarLeft) {
     return (
       <div className={`w-full h-full min-h-screen grid grid-cols-3 ${fontFamily}`} style={{ backgroundColor: backgroundColor }}>
-         <div className="col-span-1 p-8 h-full flex flex-col" style={{ backgroundColor: primaryColor }}>
-           {renderHeader(true)}
-           {renderSummary('#ffffff')}
-           {renderSkills('#ffffff')}
-           {renderEducation('#ffffff')}
-         </div>
-         <div className="col-span-2 p-8 bg-white h-full">
-           {renderExperience()}
-           {renderProjects()}
-         </div>
+        <div className="col-span-1 p-8 h-full flex flex-col" style={{ backgroundColor: primaryColor }}>
+          {renderHeader(true)}
+          {renderSummary('#ffffff')}
+          {renderSkills('#ffffff')}
+          {renderEducation('#ffffff')}
+        </div>
+        <div className="col-span-2 p-8 bg-white h-full">
+          {renderExperience()}
+          {renderProjects()}
+        </div>
       </div>
     );
   }
@@ -220,16 +220,16 @@ const AIGeneratedTemplate = ({ data, themeConfig }) => {
   if (isSidebarRight) {
     return (
       <div className={`w-full h-full min-h-screen grid grid-cols-3 ${fontFamily}`} style={{ backgroundColor: backgroundColor }}>
-         <div className="col-span-2 p-8 h-full">
-           {renderHeader(false)}
-           {renderExperience()}
-           {renderProjects()}
-         </div>
-         <div className="col-span-1 p-8 bg-stone-50 h-full border-l border-black/5" style={{ backgroundColor: secondaryColor + '10' }}>
-           {renderSummary(textColor)}
-           {renderSkills(textColor)}
-           {renderEducation(textColor)}
-         </div>
+        <div className="col-span-2 p-8 h-full">
+          {renderHeader(false)}
+          {renderExperience()}
+          {renderProjects()}
+        </div>
+        <div className="col-span-1 p-8 bg-stone-50 h-full border-l border-black/5" style={{ backgroundColor: secondaryColor + '10' }}>
+          {renderSummary(textColor)}
+          {renderSkills(textColor)}
+          {renderEducation(textColor)}
+        </div>
       </div>
     );
   }
