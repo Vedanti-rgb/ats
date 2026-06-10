@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { 
-  Users, 
-  FileText, 
-  Briefcase, 
-  ShieldAlert, 
-  Activity, 
-  Lock, 
-  Unlock, 
-  Trash2, 
-  PlusCircle, 
-  Search, 
-  Download, 
-  X, 
+import {
+  Users,
+  FileText,
+  Briefcase,
+  ShieldAlert,
+  Activity,
+  Lock,
+  Unlock,
+  Trash2,
+  PlusCircle,
+  Search,
+  Download,
+  X,
   CheckCircle,
   Clock,
   ExternalLink,
@@ -86,11 +86,11 @@ const AdminPortal = () => {
       if (prevUsers.length > 0) {
         currentUsers.forEach(currUser => {
           const prevUser = prevUsers.find(p => p._id === currUser._id);
-          
+
           // Case 1: New user registration detected
           if (!prevUser) {
             triggerNotification(`🎉 New user registered: ${currUser.name} (${currUser.email})`);
-          } 
+          }
           // Case 2: New user login detected (check lastLogin timestamp changed)
           else if (currUser.lastLogin && (!prevUser.lastLogin || currUser.lastLogin !== prevUser.lastLogin)) {
             triggerNotification(`🟢 User logged in: ${currUser.name}`);
@@ -110,7 +110,7 @@ const AdminPortal = () => {
   const triggerNotification = (message) => {
     const id = Date.now();
     setNotifications(prev => [{ id, message, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 10));
-    
+
     // Auto-remove alert after 5 seconds
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== id));
@@ -119,9 +119,11 @@ const AdminPortal = () => {
 
   // Poller setup for real-time notifications (polls every 4 seconds)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchData(true);
 
     const poller = setInterval(() => {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchData(false);
     }, 4000);
 
@@ -189,7 +191,7 @@ const AdminPortal = () => {
     const totalUsersCount = users.filter(u => !u.isAdmin).length;
     const resumesCount = resumes.length;
     const activeJobsCount = jobs.length;
-    
+
     // Average ATS Score
     const totalAts = resumes.reduce((acc, r) => acc + (r.atsScore || 0), 0);
     const avgAtsScore = resumesCount > 0 ? Math.round(totalAts / resumesCount) : 0;
@@ -220,30 +222,30 @@ const AdminPortal = () => {
   };
 
   // Filtering data based on query
-  const filteredUsers = users.filter(u => 
-    u.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredUsers = users.filter(u =>
+    u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     u.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredResumes = resumes.filter(r => 
+  const filteredResumes = resumes.filter(r =>
     r.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     r.personalInfo?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     r.userId?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredTests = tests.filter(t => 
+  const filteredTests = tests.filter(t =>
     t.userId?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     t.resumeId?.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className="w-full text-slate-800">
-      
+
       {/* Toast Notification Alert Stream (Top-Right) */}
       <div className="fixed top-6 right-6 z-[100] w-96 space-y-3 pointer-events-none">
         {notifications.map(n => (
-          <div 
-            key={n.id} 
+          <div
+            key={n.id}
             className="bg-slate-900 border-l-4 border-orange-500 text-white rounded-xl shadow-2xl p-4 flex items-start gap-3 animate-slideIn pointer-events-auto border border-slate-800"
           >
             <Activity className="text-orange-500 shrink-0 mt-0.5" size={16} />
@@ -251,7 +253,7 @@ const AdminPortal = () => {
               <p className="text-xs font-semibold leading-snug">{n.message}</p>
               <span className="text-[9px] font-mono text-slate-400 block mt-1">{n.time}</span>
             </div>
-            <button 
+            <button
               onClick={() => setNotifications(prev => prev.filter(item => item.id !== n.id))}
               className="text-slate-400 hover:text-white shrink-0"
             >
@@ -332,7 +334,7 @@ const AdminPortal = () => {
 
       {/* Main Console Content Card */}
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[600px]">
-        
+
         {/* Navigation Sidebar inside Admin Portal */}
         <div className="w-full md:w-64 border-r border-slate-200 bg-slate-50/50 p-6 flex flex-col justify-between gap-6">
           <div className="space-y-6">
@@ -340,44 +342,40 @@ const AdminPortal = () => {
             <nav className="flex flex-col gap-1.5">
               <button
                 onClick={() => { setActiveTab('users'); setSearchQuery(''); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === 'users' 
-                    ? 'bg-slate-900 text-white shadow-md' 
-                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${activeTab === 'users'
+                  ? 'bg-slate-900 text-white shadow-md'
+                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
               >
                 <Users size={16} /> 👥 Users Directory
               </button>
 
               <button
                 onClick={() => { setActiveTab('resumes'); setSearchQuery(''); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === 'resumes' 
-                    ? 'bg-slate-900 text-white shadow-md' 
-                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${activeTab === 'resumes'
+                  ? 'bg-slate-900 text-white shadow-md'
+                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
               >
                 <FileText size={16} /> 📄 All Resumes
               </button>
 
               <button
                 onClick={() => { setActiveTab('jobs'); setSearchQuery(''); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === 'jobs' 
-                    ? 'bg-slate-900 text-white shadow-md' 
-                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${activeTab === 'jobs'
+                  ? 'bg-slate-900 text-white shadow-md'
+                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
               >
                 <Briefcase size={16} /> 💼 Jobs Posting Manager
               </button>
 
               <button
                 onClick={() => { setActiveTab('tests'); setSearchQuery(''); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === 'tests' 
-                    ? 'bg-slate-900 text-white shadow-md' 
-                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${activeTab === 'tests'
+                  ? 'bg-slate-900 text-white shadow-md'
+                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
               >
                 <ShieldAlert size={16} /> 🛡️ Secure Proctor Logs
               </button>
@@ -406,7 +404,7 @@ const AdminPortal = () => {
 
         {/* Tab content area */}
         <div className="flex-1 p-8 flex flex-col h-full overflow-y-auto">
-          
+
           {/* Quick Filter Search Bar */}
           {activeTab !== 'jobs' && (
             <div className="relative mb-6">
@@ -428,7 +426,7 @@ const AdminPortal = () => {
             </div>
           ) : (
             <>
-              
+
               {/* TAB 1: USER DIRECTORY */}
               {activeTab === 'users' && (
                 <div className="space-y-4">
@@ -490,11 +488,10 @@ const AdminPortal = () => {
                                 {!u.isAdmin && (
                                   <button
                                     onClick={() => handleToggleLock(u._id)}
-                                    className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                                      u.profileLocked 
-                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' 
-                                        : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
-                                    }`}
+                                    className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${u.profileLocked
+                                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                      : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                                      }`}
                                   >
                                     {u.profileLocked ? 'Unlock Profile' : 'Lock Profile'}
                                   </button>
@@ -521,8 +518,8 @@ const AdminPortal = () => {
                         const candidateName = r.personalInfo?.name || r.userId?.name || 'Unknown Candidate';
                         const candidateEmail = r.personalInfo?.email || r.userId?.email || 'No email';
                         return (
-                          <div 
-                            key={r._id} 
+                          <div
+                            key={r._id}
                             className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between gap-6 hover:shadow-md transition-shadow relative"
                           >
                             <div className="absolute top-4 right-4 text-xs font-black bg-slate-950 text-emerald-400 px-3 py-1 rounded-full border border-slate-800">
@@ -533,7 +530,7 @@ const AdminPortal = () => {
                               <span className="text-[10px] uppercase font-bold text-orange-500 tracking-wider">Candidate</span>
                               <h3 className="text-base font-bold text-slate-950 leading-snug">{candidateName}</h3>
                               <p className="text-xs font-mono text-slate-500 truncate">{candidateEmail}</p>
-                              
+
                               <div className="border-t border-slate-100 pt-3 space-y-1 mt-2">
                                 <span className="text-[10px] text-slate-400 block font-semibold uppercase">Resume Title</span>
                                 <span className="text-xs font-bold text-slate-700 block truncate">{r.title}</span>
@@ -559,11 +556,11 @@ const AdminPortal = () => {
               {/* TAB 3: JOBS POSTINGS MANAGER */}
               {activeTab === 'jobs' && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  
+
                   {/* Left panel: Post new job opening */}
                   <div className="lg:col-span-1 bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-5 h-fit">
                     <h3 className="text-sm font-extrabold text-slate-800 tracking-wider uppercase border-b border-slate-200 pb-2">Post New Job Opening</h3>
-                    
+
                     {successMsg && (
                       <div className="bg-emerald-50 border-l-4 border-emerald-500 p-3 rounded-r-lg text-emerald-800 text-xs font-semibold">
                         {successMsg}
@@ -641,8 +638,8 @@ const AdminPortal = () => {
                         />
                       </div>
 
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         disabled={isSubmittingJob}
                         className="w-full flex items-center justify-center gap-1.5 text-xs py-3 font-bold"
                       >
@@ -654,7 +651,7 @@ const AdminPortal = () => {
                   {/* Right panel: Active postings list with applicant overview */}
                   <div className="lg:col-span-2 space-y-4">
                     <h3 className="text-sm font-extrabold text-slate-800 tracking-wider uppercase">Active Job Listings & Applicant Choice</h3>
-                    
+
                     {jobs.length === 0 ? (
                       <div className="text-center py-16 bg-slate-50 rounded-2xl border border-slate-100 text-slate-400 italic text-sm">
                         No active jobs posted. Create one using the form on the left.
@@ -789,7 +786,7 @@ const AdminPortal = () => {
       {selectedResume && (
         <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
           <div className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col h-[90vh] animate-scaleUp">
-            
+
             {/* Modal header */}
             <div className="bg-slate-950 text-white px-8 py-5 flex items-center justify-between shrink-0">
               <div>
@@ -797,13 +794,13 @@ const AdminPortal = () => {
                 <h3 className="text-lg font-bold mt-0.5">{selectedResume.title}</h3>
               </div>
               <div className="flex items-center gap-3">
-                <Button 
-                  onClick={handlePrintResume} 
+                <Button
+                  onClick={handlePrintResume}
                   className="bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-xl text-xs py-2 px-4 font-bold flex items-center gap-1.5"
                 >
                   <Download size={14} /> Download PDF / Print
                 </Button>
-                <button 
+                <button
                   onClick={() => setSelectedResume(null)}
                   className="text-slate-400 hover:text-white p-1 rounded-lg"
                 >
@@ -815,13 +812,13 @@ const AdminPortal = () => {
             {/* Modal content (Render clean candidate resume view) */}
             <div className="flex-1 p-12 overflow-y-auto print:p-0 bg-stone-50 print:bg-white custom-scrollbar select-text text-left">
               <div id="printable-resume-area" className="bg-white p-10 shadow-sm border border-slate-200 max-w-3xl mx-auto rounded-2xl print:border-none print:shadow-none">
-                
+
                 {/* Header section */}
                 <div className="border-b-2 border-slate-900 pb-6 text-center">
                   <h2 className="text-3xl font-black text-slate-950 uppercase tracking-tight">
                     {selectedResume.personalInfo?.name || selectedResume.userId?.name}
                   </h2>
-                  
+
                   <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-slate-500 mt-3">
                     {selectedResume.personalInfo?.email && <span>📧 {selectedResume.personalInfo.email}</span>}
                     {selectedResume.personalInfo?.phone && <span>📞 {selectedResume.personalInfo.phone}</span>}
