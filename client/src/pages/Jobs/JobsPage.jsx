@@ -3,14 +3,14 @@ import axios from 'axios';
 import Sidebar from '../../components/dashboard/Sidebar';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/common/Button';
-import { 
-  Briefcase, 
-  MapPin, 
-  DollarSign, 
-  CheckCircle2, 
-  ArrowRight, 
-  Search, 
-  Loader2, 
+import {
+  Briefcase,
+  MapPin,
+  DollarSign,
+  CheckCircle2,
+  ArrowRight,
+  Search,
+  Loader2,
   Clock,
   Sparkles
 } from 'lucide-react';
@@ -43,6 +43,7 @@ const JobsPage = () => {
 
   // Real-time active polling (updates job listings every 4 seconds)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchJobs(true);
 
     const poller = setInterval(() => {
@@ -69,7 +70,7 @@ const JobsPage = () => {
   };
 
   // Filtering based on search query
-  const filteredJobs = jobs.filter(j => 
+  const filteredJobs = jobs.filter(j =>
     j.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     j.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     j.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -84,7 +85,7 @@ const JobsPage = () => {
       {/* Main Content Area */}
       <main className="flex-1 ml-20 min-h-screen transition-all duration-300 overflow-hidden text-left">
         <div className="max-w-6xl mx-auto px-4 md:px-12 pt-10 pb-12 w-full space-y-8">
-          
+
           {/* Header section */}
           <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-200 pb-6">
             <div>
@@ -136,7 +137,7 @@ const JobsPage = () => {
               {filteredJobs.map(job => {
                 const hasApplied = job.applicants?.some(app => app._id === user?._id);
                 return (
-                  <div 
+                  <div
                     key={job._id}
                     className="bg-white rounded-3xl border border-slate-200 p-6 flex flex-col justify-between gap-6 hover:shadow-md transition-all duration-200 hover:border-slate-300 relative overflow-hidden"
                   >

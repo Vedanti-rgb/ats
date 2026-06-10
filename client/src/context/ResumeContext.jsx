@@ -21,11 +21,10 @@ export const ResumeProvider = ({ children }) => {
       location: '',
       summary: '',
     },
-    education: [{ id: Date.now(), school: '', degree: '', year: '', location: '' }],
-    experience: [{ id: Date.now(), company: '', position: '', duration: '', description: '' }],
-    internships: [{ id: Date.now(), company: '', position: '', duration: '', description: '' }],
-    skills: [],
-    projects: [{ id: Date.now(), title: '', description: '', link: '' }],
+    education: [{ id: 1, school: '', degree: '', year: '', location: '' }],
+    experience: [{ id: 2, company: '', position: '', duration: '', description: '' }],
+    internships: [{ id: 3, company: '', position: '', duration: '', description: '' }],
+    projects: [{ id: 4, title: '', description: '', link: '' }],
     isFresher: false,
     profileLocked: false,
     isAdmin: false,
@@ -100,7 +99,7 @@ export const ResumeProvider = ({ children }) => {
     setLoading(true);
     try {
       const { updateUserProfile } = await import('../services/authService');
-      
+
       const profileToSync = {
         name: overrideData?.fullName || resumeData.personalInfo.fullName,
         email: overrideData?.email || resumeData.personalInfo.email,
@@ -117,7 +116,7 @@ export const ResumeProvider = ({ children }) => {
       };
 
       const updatedProfile = await updateUserProfile(profileToSync);
-      
+
       setResumeData(prev => ({
         ...prev,
         personalInfo: {
@@ -188,7 +187,7 @@ export const ResumeProvider = ({ children }) => {
   const updateEntry = (section, id, field, value) => {
     setResumeData(prev => ({
       ...prev,
-      [section]: prev[section].map(item => 
+      [section]: prev[section].map(item =>
         item.id === id ? { ...item, [field]: value } : item
       )
     }));

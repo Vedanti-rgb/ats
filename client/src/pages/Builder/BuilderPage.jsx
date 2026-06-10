@@ -97,19 +97,19 @@ const SectionTitle = ({ title, subtitle, icon: Icon }) => (
 // ─── Main Builder Content ──────────────────────────────────────────────────
 
 const BuilderContent = () => {
-  const { 
+  const {
     currentResumeId,
-    currentResumeData, 
-    updateResumeData, 
-    setFresherMode, 
-    setTemplate, 
+    currentResumeData,
+    updateResumeData,
+    setFresherMode,
+    setTemplate,
     selectedTemplate,
     saveResume,
     isSaving,
     error
   } = useResumeStore();
   const navigate = useNavigate();
-  
+
   const { isFresher, enabledSections } = currentResumeData;
 
   const [toast, setToast] = useState(null);
@@ -124,7 +124,8 @@ const BuilderContent = () => {
   // Sync error from store to toast
   useEffect(() => {
     if (error) {
-        showToast(error, 'error');
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      showToast(error, 'error');
     }
   }, [error, showToast]);
 
@@ -132,7 +133,7 @@ const BuilderContent = () => {
   const handleDownloadPDF = async () => {
     const elementId = 'resume-preview-content';
     const element = document.getElementById(elementId);
-    
+
     if (!element) {
       showToast('Preview not found. Please try again.', 'error');
       return;
@@ -331,7 +332,7 @@ const BuilderContent = () => {
         </div>
 
         {/* Mobile Toggle Button */}
-        <button 
+        <button
           onClick={(e) => {
             e.stopPropagation();
             setShowPreviewMobile(!showPreviewMobile);
@@ -339,9 +340,9 @@ const BuilderContent = () => {
           className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl font-bold flex items-center gap-2 border border-slate-700 hover:scale-105 active:scale-95 transition-transform"
         >
           {showPreviewMobile ? (
-            <><EyeOff size={18}/> Back to Editor</>
+            <><EyeOff size={18} /> Back to Editor</>
           ) : (
-            <><Eye size={18}/> View Live Resume</>
+            <><Eye size={18} /> View Live Resume</>
           )}
         </button>
       </div>
