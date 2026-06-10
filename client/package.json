@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",
-    "axios": "^1.15.0",
+    "axios": "^1.17.0",
     "get-resume-ai-root": "file:..",
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.14.0",
