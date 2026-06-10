@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.2.2",
+    "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.15.0",
     "get-resume-ai-root": "file:..",
     "html2canvas": "^1.4.1",
