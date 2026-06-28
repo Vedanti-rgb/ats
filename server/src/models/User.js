@@ -95,16 +95,12 @@ const userSchema = mongoose.Schema(
   }
 );
 
-// Encrypt password using bcrypt
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  this.passwordChangedAt = Date.now() - 1000; // Subtract 1s to ensure token iat is after this
-  next();
+  this.passwordChangedAt = new Date(Date.now() - 1000);
 });
 
 
