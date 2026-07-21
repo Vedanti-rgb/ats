@@ -8,7 +8,9 @@ import {
   LogOut, 
   Layout as LayoutDashboard,
   ChevronRight,
-  Briefcase
+  Briefcase,
+  Building,
+  FileText
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -29,6 +31,8 @@ const Sidebar = () => {
         { name: 'Create Resume', icon: PlusCircle, path: '/builder' },
         { name: 'Templates', icon: Layout, path: '/templates' },
         { name: 'Job Openings', icon: Briefcase, path: '/jobs' },
+        { name: 'My Applications', icon: FileText, path: '/my-applications' },
+        { name: 'Company', icon: Building, path: '/company' },
         { name: 'ATS Score', icon: Search, path: '/ats-check' },
         { name: 'Profile', icon: User, path: '/profile' },
       ];

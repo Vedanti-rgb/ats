@@ -70,7 +70,7 @@ const TestPage = () => {
       });
       setAnswers(initialAnswers);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to generate test. Make sure you set GROQ_API_KEY in server/.env');
+      setError(err.response?.data?.message || 'AI analysis is temporarily unavailable. Please try again after a short while.');
     } finally {
       setIsLoading(false);
     }

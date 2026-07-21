@@ -42,7 +42,7 @@ const PersonalInfoForm = () => {
           label="LinkedIn Profile" 
           name="linkedin" 
           placeholder="linkedin.com/in/johndoe" 
-          value={personalInfo.linkedin}
+          value={personalInfo.linkedin || ''}
           onChange={handleChange}
         />
       </div>

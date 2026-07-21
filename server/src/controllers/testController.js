@@ -4,38 +4,50 @@ const Resume = require('../models/Resume');
 // Helper to call Groq from Backend
 async function callGroqBackend(systemPrompt, userPrompt) {
   const GROQ_API_KEY = process.env.GROQ_API_KEY;
-  if (!GROQ_API_KEY || GROQ_API_KEY === 'your_groq_api_key_here') {
-    throw new Error('GROQ_API_KEY is not set in backend .env');
+  if (!GROQ_API_KEY || GROQ_API_KEY === 'your_groq_api_key_here' || GROQ_API_KEY.trim() === '') {
+    const err = new Error('GROQ_API_KEY is not set or invalid in backend .env');
+    err.isAiError = true;
+    throw err;
   }
 
-  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${GROQ_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.6,
-      max_tokens: 2000,
-      response_format: { type: 'json_object' },
-    }),
-  });
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.6,
+        max_tokens: 2000,
+        response_format: { type: 'json_object' },
+      }),
+    });
 
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `Groq API error: ${response.status}`);
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      const rawError = new Error(err?.error?.message || `Groq API error: ${response.status}`);
+      rawError.status = response.status;
+      rawError.payload = err;
+      throw rawError;
+    }
+
+    const data = await response.json();
+    const raw = data.choices?.[0]?.message?.content;
+    if (!raw) throw new Error('Empty response from Groq');
+
+    return JSON.parse(raw);
+  } catch (err) {
+    const sanitizedError = new Error('AI analysis is temporarily unavailable. Please try again in a minute.');
+    sanitizedError.isAiError = true;
+    sanitizedError.originalError = err;
+    throw sanitizedError;
   }
-
-  const data = await response.json();
-  const raw = data.choices?.[0]?.message?.content;
-  if (!raw) throw new Error('Empty response from Groq');
-
-  return JSON.parse(raw);
 }
 
 // Generate new test questions based on resume

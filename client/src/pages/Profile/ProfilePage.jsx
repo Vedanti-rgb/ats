@@ -241,7 +241,7 @@ const ResumeDataSection = ({ resumeData, syncing, handleSync, openAddModal, hand
   </div>
 );
 
-const ProfileSection = ({ resumeData, isLive, isLocked, syncing, handleSync, handleInfoChange, showSuccess, localError }) => (
+const ProfileSection = ({ resumeData, isLive, isLocked, syncing, handleSync, handleInfoChange, handleAcademicChange, showSuccess, localError }) => (
   <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
     <div className="flex items-start justify-between mb-8 gap-4 flex-wrap">
       <div>
@@ -283,6 +283,72 @@ const ProfileSection = ({ resumeData, isLive, isLocked, syncing, handleSync, han
         <Input label="LinkedIn URL" value={resumeData.personalInfo.linkedin} onChange={(e) => handleInfoChange('linkedin', e.target.value)} placeholder="linkedin.com/in/johndoe" className="bg-white border-orange-100" />
         <Input label="Current Location" value={resumeData.personalInfo.location} onChange={(e) => handleInfoChange('location', e.target.value)} placeholder="Mumbai, India" className="bg-white border-orange-100" />
         <div className="space-y-1.5"><label className="text-sm font-bold text-stone-700 ml-1">Professional Summary</label><textarea value={resumeData.personalInfo.summary} onChange={(e) => handleInfoChange('summary', e.target.value)} className="w-full h-32 p-4 rounded-2xl border border-orange-100 bg-white focus:ring-2 focus:ring-orange-500/20 text-sm font-bold resize-none transition-all outline-none" placeholder="Tell us about your background..." /></div>
+      </div>
+    </div>
+
+    {/* Academic Eligibility Profile */}
+    <div className="border-t border-stone-100 pt-10 space-y-6 text-left">
+      <div>
+        <h3 className="text-xl font-black text-black">Academic Eligibility Profile</h3>
+        <p className="text-stone-500 text-xs font-semibold mt-1">These details are compared against company eligibility rules when applying for jobs.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Input 
+          label="10th Percentage (%)" 
+          type="number" 
+          value={resumeData.percent10th !== undefined ? resumeData.percent10th : ''} 
+          onChange={(e) => handleAcademicChange('percent10th', e.target.value)} 
+          placeholder="e.g. 85.5" 
+          className="bg-white border-orange-100" 
+        />
+        <Input 
+          label="12th Percentage (%)" 
+          type="number" 
+          value={resumeData.percent12th !== undefined ? resumeData.percent12th : ''} 
+          onChange={(e) => handleAcademicChange('percent12th', e.target.value)} 
+          placeholder="e.g. 82.0" 
+          className="bg-white border-orange-100" 
+        />
+        <Input 
+          label="Graduation Percentage (%)" 
+          type="number" 
+          value={resumeData.percentGraduation !== undefined ? resumeData.percentGraduation : ''} 
+          onChange={(e) => handleAcademicChange('percentGraduation', e.target.value)} 
+          placeholder="e.g. 78.5" 
+          className="bg-white border-orange-100" 
+        />
+        <Input 
+          label="CGPA (out of 10)" 
+          type="number" 
+          value={resumeData.cgpa !== undefined ? resumeData.cgpa : ''} 
+          onChange={(e) => handleAcademicChange('cgpa', e.target.value)} 
+          placeholder="e.g. 8.24" 
+          className="bg-white border-orange-100" 
+        />
+        <Input 
+          label="Active Backlogs" 
+          type="number" 
+          value={resumeData.backlogs !== undefined ? resumeData.backlogs : ''} 
+          onChange={(e) => handleAcademicChange('backlogs', e.target.value)} 
+          placeholder="e.g. 0" 
+          className="bg-white border-orange-100" 
+        />
+        <Input 
+          label="Eligible Branch / Discipline" 
+          value={resumeData.branch || ''} 
+          onChange={(e) => handleAcademicChange('branch', e.target.value)} 
+          placeholder="e.g. Computer Science" 
+          className="bg-white border-orange-100" 
+        />
+        <Input 
+          label="Graduation Passing Year" 
+          type="number" 
+          value={resumeData.passingYear !== undefined ? resumeData.passingYear : ''} 
+          onChange={(e) => handleAcademicChange('passingYear', e.target.value)} 
+          placeholder="e.g. 2024" 
+          className="bg-white border-orange-100" 
+        />
       </div>
     </div>
   </div>
@@ -410,6 +476,10 @@ const ProfilePage = () => {
     closeAddModal();
   };
 
+  const handleAcademicChange = (field, value) => {
+    setResumeData(prev => ({ ...prev, [field]: value }));
+  };
+
   return (
     <div className="flex bg-white min-h-screen overflow-x-hidden text-black">
       <Sidebar />
@@ -458,6 +528,7 @@ const ProfilePage = () => {
                   syncing={syncing}
                   handleSync={handleSync}
                   handleInfoChange={handleInfoChange}
+                  handleAcademicChange={handleAcademicChange}
                   showSuccess={showSuccess}
                   localError={localError}
                 />

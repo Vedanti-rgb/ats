@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
+const path = require('path');
 const { errorHandler } = require('./middleware/errorMiddleware');
 
 dotenv.config();
@@ -15,6 +16,8 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+// Expose uploaded documents statically (includes /uploads/resumes/ subdirectory)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Main Routes
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -22,8 +25,10 @@ app.use('/api/resume', require('./routes/resumeRoutes'));
 app.use('/api/user', require('./routes/userRoutes'));
 app.use('/api/ats', require('./routes/atsRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
-app.use('/api/tests', require('./routes/testRoutes'));
 app.use('/api/jobs', require('./routes/jobRoutes'));
+app.use('/api/company', require('./routes/companyRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
+
 
 // Root Endpoint
 app.get('/', (req, res) => {

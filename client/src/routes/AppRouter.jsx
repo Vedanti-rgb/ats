@@ -5,8 +5,9 @@ import BuilderPage from '../pages/Builder/BuilderPage';
 import DashboardPage from '../pages/Dashboard/DashboardPage';
 import TemplatesPage from '../pages/Templates/TemplatesPage';
 import ProfilePage from '../pages/Profile/ProfilePage';
-import TestPage from '../pages/Test/TestPage';
 import JobsPage from '../pages/Jobs/JobsPage';
+import MyApplicationsPage from '../pages/Jobs/MyApplicationsPage';
+import CompanyPage from '../pages/Company/CompanyPage';
 import ProtectedRoute from '../components/common/ProtectedRoute';
 
 const AppRouter = () => {
@@ -34,6 +35,22 @@ const AppRouter = () => {
         } 
       />
       <Route 
+        path="/my-applications" 
+        element={
+          <ProtectedRoute>
+            <MyApplicationsPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/company" 
+        element={
+          <ProtectedRoute>
+            <CompanyPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
         path="/profile" 
         element={
           <ProtectedRoute>
@@ -41,15 +58,6 @@ const AppRouter = () => {
           </ProtectedRoute>
         } 
       />
-      <Route 
-        path="/test/:resumeId" 
-        element={
-          <ProtectedRoute>
-            <TestPage />
-          </ProtectedRoute>
-        } 
-      />
-      
       {/* Fallback route */}
       <Route path="*" element={<LandingPage />} />
     </Routes>

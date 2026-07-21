@@ -73,7 +73,7 @@ const ATSChecker = () => {
     const formData = new FormData();
     formData.append('resume', f);
     try {
-      const { data } = await axios.post('http://localhost:5000/api/ats/analyze', formData, {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api/ats/analyze`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setResult(data);

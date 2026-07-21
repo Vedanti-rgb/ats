@@ -6,7 +6,7 @@ import ClassicTemplate from '../../ResumeTemplates/ClassicTemplate';
 import ModernTemplate from '../../ResumeTemplates/ModernTemplate';
 import { AliceTemplate, IsabelleTemplate } from '../../ResumeTemplates/ATSResumeTemplete';
 import { OceanTemplate, EmeraldTemplate } from '../../ResumeTemplates/CreativeTemplete';
-import { FileEdit, Trash2, Download, MoreVertical, Calendar, Loader2, Brain } from 'lucide-react';
+import { FileEdit, Trash2, Download, MoreVertical, Calendar, Loader2 } from 'lucide-react';
 import { downloadAsPDF } from '../../utils/pdfGenerator';
 
 const getTemplateComponent = (templateId) => {
@@ -149,14 +149,6 @@ const ResumeCard = ({ resume }) => {
           <span>Edit</span>
         </button>
         
-        <button 
-          onClick={() => navigate(`/test/${_id}`)}
-          title="Take AI Interview"
-          className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white border border-black/[0.05] text-stone-600 shadow-sm transition-all duration-300 hover:border-blue-500/20 hover:text-blue-500 hover:bg-blue-50/50 active:scale-90"
-        >
-          <Brain size={18} />
-        </button>
-
         <button 
           onClick={handleDownload}
           disabled={isDownloading}

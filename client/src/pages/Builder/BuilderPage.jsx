@@ -24,7 +24,6 @@ import {
   GraduationCap,
   Briefcase,
   User,
-  Brain,
 } from 'lucide-react';
 
 // ─── Section Nav Items ─────────────────────────────────────────────────────
@@ -200,13 +199,51 @@ const BuilderContent = () => {
             value={selectedTemplate}
             onChange={(e) => setTemplate(e.target.value)}
           >
-            <option value="classic">📄 Professional Classic</option>
-            <option value="modern">✨ Modern Minimal</option>
-            <option value="ats-alice">🏢 Minimalist ATS</option>
-            <option value="ats-isabelle">👔 Modern ATS</option>
-            <option value="executive">🏢 Executive Premium</option>
-            <option value="creative">🎨 Emerald Modern</option>
-            <option value="ocean">🌊 Ocean Blueprint</option>
+            <optgroup label="Professional">
+              <option value="executive">🏢 Executive Corporate</option>
+              <option value="prof-consultant">💼 Business Consultant</option>
+              <option value="prof-corporate">🏛️ Clean Corporate</option>
+              <option value="prof-premium">✨ Premium Professional</option>
+              <option value="prof-director">🎯 Director Level</option>
+              <option value="prof-finance">📊 Financial Executive</option>
+              <option value="prof-global">🌐 Global Leader</option>
+            </optgroup>
+            <optgroup label="Classic">
+              <option value="classic">📄 Traditional Resume</option>
+              <option value="classic-new">📜 New Classic</option>
+              <option value="classic-minimal">🕊️ Minimal Classic</option>
+              <option value="classic-elegant">✒️ Elegant Classic</option>
+              <option value="classic-heritage">🏰 Heritage Classic</option>
+              <option value="classic-scholarly">🎓 Scholarly Classic</option>
+              <option value="classic-formal">⚖️ Formal Executive Classic</option>
+            </optgroup>
+            <optgroup label="Modern">
+              <option value="modern">✨ Minimal Modern</option>
+              <option value="modern-split">📐 Split Layout</option>
+              <option value="modern-grid">📊 Modern Grid</option>
+              <option value="modern-timeline">⏱️ Timeline Resume</option>
+              <option value="modern-minimalist">⚡ Ultra Modern Minimalist</option>
+              <option value="modern-cards">🗂️ Modern Cards</option>
+              <option value="modern-tech">🚀 Tech Lead Modern</option>
+            </optgroup>
+            <optgroup label="Creative">
+              <option value="creative">🎨 Portfolio Style</option>
+              <option value="ocean">🌊 Asymmetric Layout</option>
+              <option value="creative-designer">🟣 Designer Resume</option>
+              <option value="creative-colorblock">🟩 Color Block Resume</option>
+              <option value="creative-artist">🖌️ Artist & Media</option>
+              <option value="creative-magazine">📰 Editorial Magazine</option>
+              <option value="creative-minimal-bold">💥 Bold Creative</option>
+            </optgroup>
+            <optgroup label="ATS Friendly">
+              <option value="ats-alice">🏢 Standard ATS</option>
+              <option value="ats-isabelle">👔 New ATS Classic</option>
+              <option value="ats-compact">📋 Compact ATS</option>
+              <option value="ats-executive">🏛️ ATS Executive</option>
+              <option value="ats-standard-clean">📑 Clean Standard ATS</option>
+              <option value="ats-technical">💻 Technical ATS</option>
+              <option value="ats-minimal-pro">🛡️ Minimal Pro ATS</option>
+            </optgroup>
           </select>
 
           {/* Save Draft */}
@@ -218,17 +255,6 @@ const BuilderContent = () => {
             {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
             Save Draft
           </button>
-
-          {/* Take Test (Only if Resume ID exists) */}
-          {currentResumeId && (
-            <button
-              onClick={() => navigate(`/test/${currentResumeId}`)}
-              className="flex items-center gap-2 rounded-xl border border-black/10 bg-blue-500 px-4 py-2 text-xs font-bold text-white hover:bg-blue-600 transition-all active:scale-95 shadow-lg shadow-blue-500/25"
-            >
-              <Brain size={14} />
-              Take Test
-            </button>
-          )}
 
           {/* Download PDF */}
           <button

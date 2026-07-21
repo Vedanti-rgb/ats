@@ -27,6 +27,57 @@ const jobSchema = mongoose.Schema(
         type: String,
       },
     ],
+    employmentType: {
+      type: String,
+      default: 'Full-time',
+    },
+    experienceRequired: {
+      type: String,
+      default: '',
+    },
+    deadline: {
+      type: Date,
+      default: null,
+    },
+    vacancies: {
+      type: Number,
+      default: 1,
+    },
+    // Eligibility criteria
+    min10thPercentage: {
+      type: Number,
+      default: 0,
+    },
+    min12thPercentage: {
+      type: Number,
+      default: 0,
+    },
+    minGraduationPercentage: {
+      type: Number,
+      default: 0,
+    },
+    minCGPA: {
+      type: Number,
+      default: 0,
+    },
+    backlogsAllowed: {
+      type: String,
+      enum: ['Yes', 'No'],
+      default: 'Yes',
+    },
+    maxBacklogs: {
+      type: Number,
+      default: 0,
+    },
+    eligibleBranches: [
+      {
+        type: String,
+      },
+    ],
+    passingYear: {
+      type: Number,
+      default: null,
+    },
     applicants: [
       {
         type: mongoose.Schema.Types.ObjectId,

@@ -78,6 +78,35 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // Academic details for job eligibility checks
+    percent10th: {
+      type: Number,
+      default: 0,
+    },
+    percent12th: {
+      type: Number,
+      default: 0,
+    },
+    percentGraduation: {
+      type: Number,
+      default: 0,
+    },
+    cgpa: {
+      type: Number,
+      default: 0,
+    },
+    backlogs: {
+      type: Number,
+      default: 0,
+    },
+    branch: {
+      type: String,
+      default: '',
+    },
+    passingYear: {
+      type: Number,
+      default: null,
+    },
     otp: {
       type: String,
       select: false,

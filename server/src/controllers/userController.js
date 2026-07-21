@@ -81,6 +81,15 @@ const updateUserProfile = async (req, res) => {
       user.location = req.body.location || user.location;
       user.summary = req.body.summary || user.summary;
 
+      // Academic details
+      if (req.body.percent10th !== undefined) user.percent10th = Number(req.body.percent10th);
+      if (req.body.percent12th !== undefined) user.percent12th = Number(req.body.percent12th);
+      if (req.body.percentGraduation !== undefined) user.percentGraduation = Number(req.body.percentGraduation);
+      if (req.body.cgpa !== undefined) user.cgpa = Number(req.body.cgpa);
+      if (req.body.backlogs !== undefined) user.backlogs = Number(req.body.backlogs);
+      if (req.body.branch !== undefined) user.branch = req.body.branch;
+      if (req.body.passingYear !== undefined) user.passingYear = req.body.passingYear ? Number(req.body.passingYear) : null;
+
       // Full Resume Data - with safety checks
       if (req.body.education) user.education = req.body.education;
       if (req.body.experience) user.experience = req.body.experience;
@@ -107,6 +116,13 @@ const updateUserProfile = async (req, res) => {
         linkedin: updatedUser.linkedin,
         location: updatedUser.location,
         summary: updatedUser.summary,
+        percent10th: updatedUser.percent10th,
+        percent12th: updatedUser.percent12th,
+        percentGraduation: updatedUser.percentGraduation,
+        cgpa: updatedUser.cgpa,
+        backlogs: updatedUser.backlogs,
+        branch: updatedUser.branch,
+        passingYear: updatedUser.passingYear,
         education: updatedUser.education,
         experience: updatedUser.experience,
         internships: updatedUser.internships,

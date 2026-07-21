@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api/auth';
+const API_URL = `${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api/auth`;
 
 const getAuthHeader = () => {
   const token = localStorage.getItem('token');
@@ -113,7 +113,7 @@ export const getCurrentUser = async () => {
   }
 };
 
-const USER_API_URL = 'http://localhost:5000/api/user';
+const USER_API_URL = `${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api/user`;
 
 export const getAllUsers = async () => {
   const response = await fetch(`${USER_API_URL}/all`, {

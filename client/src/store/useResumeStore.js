@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api/resume';
+const API_BASE_URL = `${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api/resume`;
 
 // Helper to get token from localStorage (assuming it's stored there)
 const getAuthHeader = () => {

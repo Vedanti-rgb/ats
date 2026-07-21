@@ -17,11 +17,12 @@ import {
   Clock,
   ExternalLink,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Building
 } from 'lucide-react';
 import Button from '../common/Button';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
 
 const AdminPortal = () => {
   // Tabs: 'users', 'resumes', 'jobs', 'tests'
@@ -34,9 +35,18 @@ const AdminPortal = () => {
   const [resumes, setResumes] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [tests, setTests] = useState([]);
+  const [companies, setCompanies] = useState([]);
+  const [companiesCount, setCompaniesCount] = useState(0);
+  const [companyPages, setCompanyPages] = useState(1);
+  const [companyPage, setCompanyPage] = useState(1);
+  const [companyStatusFilter, setCompanyStatusFilter] = useState('All');
 
   // UI / Modal States
   const [selectedResume, setSelectedResume] = useState(null);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [showRejectPrompt, setShowRejectPrompt] = useState(false);
+  const [companyToReject, setCompanyToReject] = useState(null);
   const [newJob, setNewJob] = useState({
     title: '',
     company: '',
@@ -129,6 +139,96 @@ const AdminPortal = () => {
 
     return () => clearInterval(poller);
   }, []);
+
+  const fetchCompanies = async (showLoader = true) => {
+    if (showLoader) setIsLoading(true);
+    try {
+      const res = await axios.get(
+        `${API_URL}/api/company/all?status=${companyStatusFilter}&search=${searchQuery}&pageNumber=${companyPage}`,
+        getAuthHeaders()
+      );
+      setCompanies(res.data.companies || []);
+      setCompanyPages(res.data.pages || 1);
+      setCompaniesCount(res.data.total || 0);
+    } catch (err) {
+      console.error("Failed to load companies", err);
+      setError("Failed to load company verification submissions.");
+    } finally {
+      if (showLoader) setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'companies') {
+      const delayDebounceFn = setTimeout(() => {
+        fetchCompanies(false);
+      }, 500);
+      return () => clearTimeout(delayDebounceFn);
+    }
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (activeTab === 'companies') {
+      fetchCompanies(true);
+    }
+  }, [activeTab, companyStatusFilter, companyPage]);
+
+  const handleVerifyCompany = async (companyId) => {
+    try {
+      setError('');
+      setSuccessMsg('');
+      const res = await axios.put(`${API_URL}/api/company/verify/${companyId}`, {}, getAuthHeaders());
+      fetchCompanies(false);
+      setSuccessMsg(`Company "${res.data.companyName}" successfully verified!`);
+      triggerNotification(`🟢 Verified company: ${res.data.companyName}`);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to verify company.');
+    }
+  };
+
+  const handleOpenRejectPrompt = (company) => {
+    setCompanyToReject(company);
+    setRejectionReason('');
+    setShowRejectPrompt(true);
+  };
+
+  const handleRejectCompanySubmit = async (e) => {
+    e.preventDefault();
+    if (!rejectionReason.trim()) {
+      alert("Please provide a rejection reason.");
+      return;
+    }
+    try {
+      setError('');
+      setSuccessMsg('');
+      const res = await axios.put(
+        `${API_URL}/api/company/reject/${companyToReject._id}`,
+        { rejectionReason },
+        getAuthHeaders()
+      );
+      setShowRejectPrompt(false);
+      setCompanyToReject(null);
+      fetchCompanies(false);
+      setSuccessMsg(`Company "${res.data.companyName}" verification rejected.`);
+      triggerNotification(`🔴 Rejected company: ${res.data.companyName}`);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to reject company.');
+    }
+  };
+
+  const handleDeleteCompany = async (companyId) => {
+    if (!window.confirm('Are you sure you want to delete this company profile?')) return;
+    try {
+      setError('');
+      setSuccessMsg('');
+      await axios.delete(`${API_URL}/api/company/${companyId}`, getAuthHeaders());
+      fetchCompanies(false);
+      setSuccessMsg('Company profile deleted successfully.');
+      triggerNotification(`🗑️ Deleted company profile.`);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete company profile.');
+    }
+  };
 
   // Lock / Unlock candidates
   const handleToggleLock = async (userId) => {
@@ -379,6 +479,16 @@ const AdminPortal = () => {
               >
                 <ShieldAlert size={16} /> 🛡️ Secure Proctor Logs
               </button>
+
+              <button
+                onClick={() => { setActiveTab('companies'); setSearchQuery(''); }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${activeTab === 'companies'
+                  ? 'bg-slate-900 text-white shadow-md'
+                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
+              >
+                <Building size={16} /> 🏢 Company Submissions
+              </button>
             </nav>
           </div>
 
@@ -412,7 +522,12 @@ const AdminPortal = () => {
               <input
                 type="text"
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-800 transition-all text-sm text-slate-700 font-medium"
-                placeholder={`Search ${activeTab === 'users' ? 'candidates' : activeTab === 'resumes' ? 'resumes' : 'tests'} by query...`}
+                placeholder={`Search ${
+                  activeTab === 'users' ? 'candidates' : 
+                  activeTab === 'resumes' ? 'resumes' : 
+                  activeTab === 'tests' ? 'tests' : 
+                  'companies by name or industry'
+                }...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -775,6 +890,135 @@ const AdminPortal = () => {
                 </div>
               )}
 
+              {/* TAB 5: COMPANY VERIFICATION SUBMISSIONS */}
+              {activeTab === 'companies' && (
+                <div className="space-y-4 text-left">
+                  <div className="flex justify-between items-center flex-wrap gap-4">
+                    <h2 className="text-lg font-bold text-slate-900">🏢 Company Verification Submissions ({companiesCount})</h2>
+                    
+                    {/* Status filter tabs */}
+                    <div className="flex gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200/50">
+                      {['All', 'Pending', 'Under Review', 'Verified', 'Rejected'].map(status => (
+                        <button
+                          key={status}
+                          onClick={() => { setCompanyStatusFilter(status); setCompanyPage(1); }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            companyStatusFilter === status 
+                              ? 'bg-slate-900 text-white shadow-sm' 
+                              : 'text-slate-500 hover:text-slate-900'
+                          }`}
+                        >
+                          {status}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto border border-slate-200 rounded-2xl bg-white font-sans">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                        <tr>
+                          <th className="px-6 py-4">Company Name</th>
+                          <th className="px-6 py-4">Industry / Size</th>
+                          <th className="px-6 py-4">Submitted Date</th>
+                          <th className="px-6 py-4">Status</th>
+                          <th className="px-6 py-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 font-semibold text-slate-700">
+                        {companies.length === 0 ? (
+                          <tr>
+                            <td colSpan="5" className="text-center py-10 text-slate-400 italic">No company submissions found.</td>
+                          </tr>
+                        ) : (
+                          companies.map(c => (
+                            <tr key={c._id} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="px-6 py-4">
+                                <span className="text-slate-950 font-bold block">{c.companyName}</span>
+                                <span className="text-[10px] text-slate-400 block mt-0.5">{c.officialEmail}</span>
+                              </td>
+                              <td className="px-6 py-4">
+                                <span className="text-slate-800 block text-xs">{c.industry}</span>
+                                <span className="text-[10px] text-slate-400 block mt-0.5">{c.companySize} Employees</span>
+                              </td>
+                              <td className="px-6 py-4 text-xs">
+                                <span className="flex items-center gap-1.5 text-slate-600">
+                                  <Clock size={12} className="text-slate-400" />
+                                  {new Date(c.submittedAt || c.createdAt).toLocaleDateString()}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4">
+                                {c.verificationStatus === 'Pending' ? (
+                                  <span className="text-amber-600 bg-amber-50 border border-amber-100 text-[10px] font-bold px-2 py-0.5 rounded-md">Pending</span>
+                                ) : c.verificationStatus === 'Under Review' ? (
+                                  <span className="text-blue-600 bg-blue-50 border border-blue-100 text-[10px] font-bold px-2 py-0.5 rounded-md">Under Review</span>
+                                ) : c.verificationStatus === 'Verified' ? (
+                                  <span className="text-emerald-600 bg-emerald-50 border border-emerald-100 text-[10px] font-bold px-2 py-0.5 rounded-md">Verified</span>
+                                ) : (
+                                  <span className="text-rose-600 bg-rose-50 border border-rose-100 text-[10px] font-bold px-2 py-0.5 rounded-md" title={c.rejectionReason}>Rejected</span>
+                                )}
+                              </td>
+                              <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => setSelectedCompany(c)}
+                                  className="px-2.5 py-1.5 bg-slate-950 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
+                                >
+                                  View
+                                </button>
+                                {c.verificationStatus !== 'Verified' && (
+                                  <button
+                                    onClick={() => handleVerifyCompany(c._id)}
+                                    className="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
+                                  >
+                                    Approve
+                                  </button>
+                                )}
+                                {c.verificationStatus !== 'Rejected' && (
+                                  <button
+                                    onClick={() => handleOpenRejectPrompt(c)}
+                                    className="px-2.5 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
+                                  >
+                                    Reject
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => handleDeleteCompany(c._id)}
+                                  className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
+                                  title="Delete Profile"
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination control */}
+                  {companyPages > 1 && (
+                    <div className="flex justify-between items-center pt-2">
+                      <button
+                        disabled={companyPage === 1}
+                        onClick={() => setCompanyPage(prev => Math.max(prev - 1, 1))}
+                        className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                      >
+                        Previous
+                      </button>
+                      <span className="text-xs font-bold text-slate-500">Page {companyPage} of {companyPages}</span>
+                      <button
+                        disabled={companyPage === companyPages}
+                        onClick={() => setCompanyPage(prev => Math.min(prev + 1, companyPages))}
+                        className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
             </>
           )}
 
@@ -904,6 +1148,173 @@ const AdminPortal = () => {
               </div>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* OVERLAY MODAL: COMPANY DETAILED VIEW */}
+      {selectedCompany && (
+        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className="bg-white rounded-3xl w-full max-w-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col h-[85vh] animate-scaleUp text-left">
+            
+            {/* Modal header */}
+            <div className="bg-slate-950 text-white px-8 py-5 flex items-center justify-between shrink-0">
+              <div>
+                <span className="text-[10px] text-orange-500 font-extrabold uppercase tracking-widest font-sans">Company Registration submission</span>
+                <h3 className="text-lg font-bold mt-0.5 font-sans">{selectedCompany.companyName}</h3>
+              </div>
+              <button
+                onClick={() => setSelectedCompany(null)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal content */}
+            <div className="flex-1 p-8 overflow-y-auto bg-slate-50 space-y-6 custom-scrollbar text-xs font-semibold text-slate-700 font-sans">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* Section 1: Basic Information */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                  <h4 className="font-extrabold text-slate-950 uppercase border-b border-slate-100 pb-1.5 mb-2">Basic Info</h4>
+                  <p><span className="text-slate-400 block font-medium">Official Email:</span> <span className="text-slate-900 font-bold">{selectedCompany.officialEmail}</span></p>
+                  <p><span className="text-slate-400 block font-medium">Website:</span> <a href={selectedCompany.website} target="_blank" rel="noreferrer" className="text-orange-500 hover:underline">{selectedCompany.website}</a></p>
+                  <p><span className="text-slate-400 block font-medium">Phone:</span> <span>{selectedCompany.phone}</span></p>
+                  <p><span className="text-slate-400 block font-medium">HR Contact Person:</span> <span>{selectedCompany.hrName}</span></p>
+                  <p><span className="text-slate-400 block font-medium">HR Email:</span> <span>{selectedCompany.hrEmail}</span></p>
+                  {selectedCompany.hrPhone && <p><span className="text-slate-400 block font-medium">HR Phone:</span> <span>{selectedCompany.hrPhone}</span></p>}
+                </div>
+
+                {/* Section 2: Company Details */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                  <h4 className="font-extrabold text-slate-950 uppercase border-b border-slate-100 pb-1.5 mb-2">Company Details</h4>
+                  <p><span className="text-slate-400 block font-medium">Industry:</span> <span className="text-slate-900">{selectedCompany.industry}</span></p>
+                  <p><span className="text-slate-400 block font-medium">Company Size:</span> <span className="text-slate-900">{selectedCompany.companySize} Employees</span></p>
+                  <p><span className="text-slate-400 block font-medium">Company Type:</span> <span className="text-slate-900">{selectedCompany.companyType}</span></p>
+                  <p><span className="text-slate-400 block font-medium">Year Established:</span> <span>{selectedCompany.yearEstablished}</span></p>
+                  <p><span className="text-slate-400 block font-medium">Address:</span> <span className="font-normal">{selectedCompany.address || 'N/A'}, {selectedCompany.city || 'N/A'}, {selectedCompany.state || 'N/A'}, {selectedCompany.postalCode || 'N/A'}, {selectedCompany.country || 'N/A'}</span></p>
+                </div>
+
+                {/* Section 3: Legal Identifiers */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 md:col-span-2">
+                  <h4 className="font-extrabold text-slate-950 uppercase border-b border-slate-100 pb-1.5 mb-2">Legal Identifiers</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <p><span className="text-slate-400 block font-medium">CIN Number:</span> <span className="font-mono text-slate-900">{selectedCompany.cin || 'N/A'}</span></p>
+                    <p><span className="text-slate-400 block font-medium">GST Number:</span> <span className="font-mono text-slate-900">{selectedCompany.gst || 'N/A'}</span></p>
+                    <p><span className="text-slate-400 block font-medium">PAN Number:</span> <span className="font-mono text-slate-900">{selectedCompany.pan || 'N/A'}</span></p>
+                    <p><span className="text-slate-400 block font-medium">Registration Number:</span> <span className="font-mono text-slate-900">{selectedCompany.registrationNumber || 'N/A'}</span></p>
+                    <p><span className="text-slate-400 block font-medium">LinkedIn Profile:</span> <span className="truncate block font-mono text-orange-500">{selectedCompany.linkedin || 'N/A'}</span></p>
+                    <p><span className="text-slate-400 block font-medium">Careers Page URL:</span> <span className="truncate block font-mono text-orange-500">{selectedCompany.careersPage || 'N/A'}</span></p>
+                  </div>
+                </div>
+
+                {/* Section 4: Uploaded Files */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 md:col-span-2">
+                  <h4 className="font-extrabold text-slate-950 uppercase border-b border-slate-100 pb-1.5 mb-2">Submitted Certificates & Documents</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {selectedCompany.documents && selectedCompany.documents.map((doc, idx) => (
+                      <a
+                        key={idx}
+                        href={`${API_URL}${doc.path}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl hover:border-orange-500/30 transition-all font-semibold"
+                      >
+                        <FileText size={16} className="text-orange-500 shrink-0" />
+                        <div className="min-w-0 flex-1 text-left">
+                          <span className="text-xs text-slate-900 block truncate">{doc.name}</span>
+                          <span className="text-[10px] text-slate-400 block truncate">{doc.originalName || 'document.pdf'}</span>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Section 5: Description */}
+                {selectedCompany.description && (
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2 md:col-span-2">
+                    <h4 className="font-extrabold text-slate-950 uppercase border-b border-slate-100 pb-1.5">Company Description</h4>
+                    <p className="text-slate-600 font-normal leading-relaxed">{selectedCompany.description}</p>
+                  </div>
+                )}
+
+              </div>
+            </div>
+
+            {/* Modal footer actions */}
+            <div className="border-t border-slate-150 p-5 bg-slate-50 flex justify-end gap-3 shrink-0">
+              <button
+                onClick={() => setSelectedCompany(null)}
+                className="bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 px-6 py-2.5 rounded-xl font-bold transition-all cursor-pointer"
+              >
+                Close
+              </button>
+              {selectedCompany.verificationStatus !== 'Verified' && (
+                <button
+                  onClick={() => {
+                    handleVerifyCompany(selectedCompany._id);
+                    setSelectedCompany(null);
+                  }}
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2.5 rounded-xl font-bold transition-all cursor-pointer"
+                >
+                  Approve Verification
+                </button>
+              )}
+              {selectedCompany.verificationStatus !== 'Rejected' && (
+                <button
+                  onClick={() => {
+                    handleOpenRejectPrompt(selectedCompany);
+                    setSelectedCompany(null);
+                  }}
+                  className="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2.5 rounded-xl font-bold transition-all cursor-pointer"
+                >
+                  Reject Verification
+                </button>
+              )}
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* OVERLAY MODAL: REJECTION REASON PROMPT */}
+      {showRejectPrompt && (
+        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-[110] p-4">
+          <div className="bg-white rounded-3xl w-full max-w-[440px] shadow-2xl border border-slate-100 p-8 text-left animate-scaleUp">
+            <h3 className="text-xl font-black text-slate-950 flex items-center gap-1.5">
+              <AlertCircle size={20} className="text-rose-500" /> Reject Submission
+            </h3>
+            <p className="text-xs text-slate-500 mt-2 font-semibold">
+              Please enter the reason for rejecting the verification request for "{companyToReject?.companyName}". The user will see this comment.
+            </p>
+
+            <form onSubmit={handleRejectCompanySubmit} className="space-y-4 mt-5">
+              <textarea
+                required
+                rows="4"
+                placeholder="e.g. The GST Certificate uploaded is expired or contains a different organization name. Please submit the latest active incorporation proof..."
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-semibold outline-none focus:ring-2 focus:ring-slate-950/10 focus:border-slate-800"
+              />
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => { setShowRejectPrompt(false); setCompanyToReject(null); }}
+                  className="flex-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-3 rounded-xl text-xs font-bold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-rose-500 hover:bg-rose-600 text-white py-3 rounded-xl text-xs font-bold cursor-pointer transition-all active:scale-95"
+                >
+                  Confirm Rejection
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

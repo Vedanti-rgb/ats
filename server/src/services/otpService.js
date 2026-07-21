@@ -45,6 +45,7 @@ const sendOTPEmail = async (email, otp) => {
   };
 
   try {
+    console.log('--- GENERATED OTP CODE ---', otp);
     console.log('Attempting to send OTP email to:', email);
     console.log('Using email account:', process.env.EMAIL_USER);
     

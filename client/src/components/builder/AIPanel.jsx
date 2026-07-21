@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import useResumeStore from '../../store/useResumeStore';
-import { generateAIResume, analyzeATSScore } from '../../services/groqService';
+import { generateAIResume, analyzeATSScore } from '../../services/aiService';
 import {
   Sparkles,
   Loader2,
@@ -105,30 +105,58 @@ const AIPanel = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [showResults, setShowResults] = useState(false);
   const [toast, setToast] = useState(null);
+  const [activeStep, setActiveStep] = useState(0);
+
+  const loadingSteps = [
+    "Parsing Resume...",
+    "Extracting Skills...",
+    "Matching Keywords...",
+    "Calculating ATS Score...",
+    "Generating Recommendations..."
+  ];
+
+  useEffect(() => {
+    let interval;
+    if (isAIGenerating) {
+      setActiveStep(0);
+      interval = setInterval(() => {
+        setActiveStep((prev) => (prev < 4 ? prev + 1 : prev));
+      }, 1500);
+    } else {
+      setActiveStep(0);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isAIGenerating]);
 
   const showToast = useCallback((message, type = 'info') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 5000);
   }, []);
 
-  const handleAnalyzeOnly = async () => {
+  const handleAnalyzeOnly = async (force = false) => {
     if (!jobDescription || !jobDescription.trim()) {
       showToast('Please paste a job description first.', 'error');
       return;
     }
+    if (isAIGenerating) {
+      showToast('Analysis already in progress...', 'info');
+      return;
+    }
     setAIGenerating(true);
     try {
-      const result = await analyzeATSScore(currentResumeData, jobDescription);
+      const result = await analyzeATSScore(currentResumeData, jobDescription, force);
       applyATSAnalysis(result);
       setShowResults(true);
       showToast(`ATS Score: ${result.atsScore}/100 — analysis complete!`, 'success');
     } catch (err) {
       setAIGenerating(false);
-      showToast(err.message || 'Analysis failed. Check your API key.', 'error');
+      showToast(err.message || 'Analysis failed.', 'error');
     }
   };
 
-  const handleGenerateFull = async () => {
+  const handleGenerateFull = async (force = false) => {
     if (!jobDescription || !jobDescription.trim()) {
       showToast('Please paste a job description first.', 'error');
       return;
@@ -138,16 +166,20 @@ const AIPanel = () => {
       showToast('Please fill in some resume content first, then click Generate.', 'error');
       return;
     }
+    if (isAIGenerating) {
+      showToast('Optimization already in progress...', 'info');
+      return;
+    }
     setAIGenerating(true);
-    showToast('Groq AI is optimizing your resume… this takes ~10 seconds.', 'info');
+    showToast('Optimizing resume… this takes a few seconds.', 'info');
     try {
-      const result = await generateAIResume(currentResumeData, jobDescription);
+      const result = await generateAIResume(currentResumeData, jobDescription, force);
       applyAIResume(result);
       setShowResults(true);
       showToast(`✓ Resume optimized! ATS Score: ${result.atsScore}/100`, 'success');
     } catch (err) {
       setAIGenerating(false);
-      showToast(err.message || 'Generation failed. Check your API key.', 'error');
+      showToast(err.message || 'Generation failed.', 'error');
     }
   };
 
@@ -168,7 +200,7 @@ const AIPanel = () => {
             </div>
             <div className="text-left">
               <p className="text-sm font-black text-black">AI Resume Optimizer</p>
-              <p className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">Powered by Groq · Llama 3 70B</p>
+              <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">Enterprise Grade ATS Compliance</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -206,43 +238,74 @@ const AIPanel = () => {
               )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              {/* Analyze Only */}
-              <button
-                onClick={handleAnalyzeOnly}
-                disabled={isAIGenerating}
-                className="flex items-center gap-2 rounded-xl border border-orange-300 bg-white px-4 py-2.5 text-xs font-black text-orange-600 hover:bg-orange-50 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
-              >
-                {isAIGenerating ? <Loader2 size={14} className="animate-spin" /> : <Target size={14} />}
-                Score Only
-              </button>
+            {/* Action / Progress Buttons */}
+            {isAIGenerating ? (
+              <div className="p-4 rounded-2xl bg-white border border-stone-200 shadow-sm space-y-2.5">
+                <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                  <Loader2 size={12} className="animate-spin text-orange-500" />
+                  Optimizing & Scoring Resume
+                </p>
+                {loadingSteps.map((step, idx) => {
+                  const isCompleted = idx < activeStep;
+                  const isActive = idx === activeStep;
+                  return (
+                    <div key={idx} className="flex items-center gap-3 text-xs font-semibold">
+                      {isCompleted ? (
+                        <CheckCircle2 size={14} className="text-green-500 shrink-0" />
+                      ) : isActive ? (
+                        <Loader2 size={14} className="text-orange-500 animate-spin shrink-0" />
+                      ) : (
+                        <div className="h-2 w-2 rounded-full bg-stone-200 ml-1 shrink-0" />
+                      )}
+                      <span className={isCompleted ? "text-stone-600 font-semibold" : isActive ? "text-orange-600 font-black" : "text-stone-400 font-medium"}>
+                        {step}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex gap-3">
+                {/* Analyze Only */}
+                <button
+                  onClick={() => handleAnalyzeOnly(false)}
+                  disabled={isAIGenerating}
+                  className="flex items-center gap-2 rounded-xl border border-orange-300 bg-white px-4 py-2.5 text-xs font-black text-orange-600 hover:bg-orange-50 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <Target size={14} />
+                  Score Only
+                </button>
 
-              {/* Full AI Generate */}
-              <button
-                onClick={handleGenerateFull}
-                disabled={isAIGenerating}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-2.5 text-xs font-black text-white hover:bg-orange-600 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none shadow-lg shadow-orange-500/25"
-              >
-                {isAIGenerating ? (
-                  <>
-                    <Loader2 size={14} className="animate-spin" />
-                    Optimizing Resume…
-                  </>
-                ) : (
-                  <>
-                    <Zap size={14} />
-                    ⚡ Generate ATS Resume
-                  </>
-                )}
-              </button>
-            </div>
+                {/* Full AI Generate */}
+                <button
+                  onClick={() => handleGenerateFull(false)}
+                  disabled={isAIGenerating}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-2.5 text-xs font-black text-white hover:bg-orange-600 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none shadow-lg shadow-orange-500/25"
+                >
+                  <Zap size={14} />
+                  ⚡ Generate ATS Resume
+                </button>
+              </div>
+            )}
 
             {/* Results Section */}
             {atsScore !== null && (
               <div className="space-y-4 pt-1">
                 {/* Score Gauge */}
                 <ATSGauge score={atsScore} />
+
+                {/* Force Regenerate Action */}
+                <div className="flex justify-between items-center px-1">
+                  <span className="text-[10px] font-bold text-stone-400">Analysis results cached</span>
+                  <button
+                    onClick={() => handleGenerateFull(true)}
+                    disabled={isAIGenerating}
+                    className="text-[11px] font-black text-orange-500 hover:text-orange-600 transition-colors uppercase tracking-wider flex items-center gap-1 active:scale-95 disabled:opacity-50"
+                  >
+                    <Zap size={10} />
+                    Force Regenerate
+                  </button>
+                </div>
 
                 {/* AI Improvements summary */}
                 {aiImprovements && (

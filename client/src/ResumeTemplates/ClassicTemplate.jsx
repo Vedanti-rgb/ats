@@ -63,6 +63,7 @@ const ClassicTemplate = ({ data }) => {
         <h1 className="text-3xl font-bold uppercase tracking-wide">{displayData?.personalInfo?.name}</h1>
         <p className="text-sm mt-2">
           {displayData?.personalInfo?.email} | {displayData?.personalInfo?.phone} | {displayData?.personalInfo?.location}
+          {displayData?.personalInfo?.linkedin && ` | ${displayData.personalInfo.linkedin}`}
         </p>
       </header>
 
