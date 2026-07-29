@@ -58,6 +58,7 @@ Your job is to rewrite the user's resume content to be perfectly optimized for t
 Rules:
 - Use strong action verbs and quantified achievements where possible
 - Naturally weave in keywords from the job description
+- ONLY use keywords and technologies that EXPLICITLY appear in the provided Job Description. Do NOT add unrelated technologies (e.g. do NOT add React, Node.js, Java, Android unless they explicitly appear in the Job Description).
 - Keep all bullet points concise (1-2 lines max)
 - NEVER invent fake companies, titles, dates, or credentials
 - Only improve the WRITING of what the user has already provided

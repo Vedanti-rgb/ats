@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
-const API_BASE_URL = `${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api/resume`;
+const API_BASE_URL = 'http://localhost:5000/api/resume';
 
 // Helper to get token from localStorage (assuming it's stored there)
 const getAuthHeader = () => {
@@ -63,14 +63,25 @@ const useResumeStore = create((set, get) => ({
     // Actions
     setAiThemeConfig: (config) => set({ aiThemeConfig: config }),
     setTemplate: (templateId) => set({ selectedTemplate: templateId }),
-    
+
     setResumeData: (data) => set((state) => ({
         currentResumeData: typeof data === 'function' ? data(state.currentResumeData) : data
     })),
 
     // AI Actions
     updateJobDescription: (desc) => set((state) => ({
-        currentResumeData: { ...state.currentResumeData, jobDescription: desc }
+        currentResumeData: {
+            ...state.currentResumeData,
+            jobDescription: desc,
+            // Invalidate outdated ATS result if JD changes or is cleared
+            atsScore: null,
+            matchLabel: null,
+            categoryScores: null,
+            missingKeywords: [],
+            matchedKeywords: [],
+            suggestedSkills: [],
+            aiImprovements: ''
+        }
     })),
 
     setAIGenerating: (val) => set((state) => ({
@@ -90,6 +101,9 @@ const useResumeStore = create((set, get) => ({
             skills: data.skills || state.currentResumeData.skills,
             suggestedSkills: data.suggestedSkills || [],
             atsScore: data.atsScore,
+            matchLabel: data.matchLabel,
+            categoryScores: data.categoryScores,
+            matchedKeywords: data.matchedKeywords || [],
             missingKeywords: data.missingKeywords || [],
             aiImprovements: data.improvements || '',
             isAIGenerating: false
@@ -100,6 +114,8 @@ const useResumeStore = create((set, get) => ({
         currentResumeData: {
             ...state.currentResumeData,
             atsScore: data.atsScore,
+            matchLabel: data.matchLabel,
+            categoryScores: data.categoryScores,
             matchedKeywords: data.matchedKeywords || [],
             missingKeywords: data.missingKeywords || [],
             aiImprovements: data.suggestions?.join(' ') || '',
@@ -112,12 +128,16 @@ const useResumeStore = create((set, get) => ({
         if (section === 'personalInfo') {
             newData.personalInfo = { ...newData.personalInfo, [field]: value };
         } else if (Array.isArray(newData[section])) {
-            newData[section] = newData[section].map(item => 
+            newData[section] = newData[section].map(item =>
                 item.id === field ? { ...item, [value.name]: value.val } : item
             );
         } else if (section === 'enabledSections') {
             newData.enabledSections = { ...newData.enabledSections, [field]: value };
         }
+        // Invalidate ATS score on resume data modification
+        newData.atsScore = null;
+        newData.matchLabel = null;
+        newData.categoryScores = null;
         return { currentResumeData: newData };
     }),
 
@@ -190,7 +210,7 @@ const useResumeStore = create((set, get) => ({
                 response = await axios.post(API_BASE_URL, payload, { headers: getAuthHeader() });
                 set({ currentResumeId: response.data._id });
             }
-            
+
             // Refresh list
             get().fetchResumes();
             set({ isSaving: false, error: null });

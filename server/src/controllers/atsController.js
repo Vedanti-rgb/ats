@@ -2,6 +2,7 @@ const multer = require('multer');
 const { PDFParse } = require('pdf-parse');
 const mammoth = require('mammoth');
 const { scoreResumeVsJD } = require('../services/atsScoringEngine');
+const { scoreBuilderResumeVsJD } = require('../services/builderAtsScoringEngine');
 const crypto = require('crypto');
 const {
   optimizeResumeBackend,
@@ -50,7 +51,7 @@ const upload = multer({
  */
 const mapScoringToLegacyResult = (analysis, wordCount) => {
   const breakdown = {};
-  
+
   // 1. Keyword Match (Max 60 pts)
   const reqScore = analysis.categoryScores['Required Skills Match']?.score || 0;
   const prefScore = analysis.categoryScores['Preferred Skills Match']?.score || 0;
@@ -177,6 +178,9 @@ const analyzeStructuredResume = async (req, res, next) => {
     if (!resumeData) {
       return res.status(400).json({ message: 'Missing resumeData' });
     }
+    if (!jobDescription || !jobDescription.trim()) {
+      return res.status(400).json({ message: 'Paste a Job Description to calculate ATS compatibility.' });
+    }
 
     const fingerprint = getFingerprint(resumeData, jobDescription);
     if (!forceRegenerate && analyzeCache.has(fingerprint)) {
@@ -184,9 +188,10 @@ const analyzeStructuredResume = async (req, res, next) => {
       return res.json(analyzeCache.get(fingerprint));
     }
 
-    const analysis = await scoreResumeVsJD(resumeData, jobDescription || '');
+    const analysis = await scoreResumeVsJD(resumeData, jobDescription);
     const result = {
       atsScore: analysis.atsScore,
+      matchLabel: analysis.matchLabel,
       categoryScores: analysis.categoryScores,
       matchedKeywords: analysis.matchedKeywords,
       missingKeywords: analysis.missingKeywords,
@@ -214,6 +219,9 @@ const optimizeStructuredResume = async (req, res, next) => {
     if (!resumeData) {
       return res.status(400).json({ message: 'Missing resumeData' });
     }
+    if (!jobDescription || !jobDescription.trim()) {
+      return res.status(400).json({ message: 'Paste a Job Description to calculate ATS compatibility.' });
+    }
 
     const fingerprint = getFingerprint(resumeData, jobDescription);
     if (!forceRegenerate && optimizeCache.has(fingerprint)) {
@@ -222,9 +230,11 @@ const optimizeStructuredResume = async (req, res, next) => {
     }
 
     const optimized = await optimizeResumeBackend(resumeData, jobDescription);
-    const scoringResult = await scoreResumeVsJD(optimized, jobDescription || '');
+    const scoringResult = await scoreResumeVsJD(optimized, jobDescription);
 
     optimized.atsScore = scoringResult.atsScore;
+    optimized.matchLabel = scoringResult.matchLabel;
+    optimized.categoryScores = scoringResult.categoryScores;
     optimized.missingKeywords = scoringResult.missingKeywords;
     optimized.matchedKeywords = scoringResult.matchedKeywords;
     optimized.suggestedSkills = scoringResult.suggestions;

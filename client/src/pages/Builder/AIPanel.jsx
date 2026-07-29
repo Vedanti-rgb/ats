@@ -60,11 +60,10 @@ const ATSGauge = ({ score }) => {
 // ─── Keyword Pill ────────────────────────────────────────────────────────────
 
 const KeywordPill = ({ word, found }) => (
-  <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full border ${
-    found
+  <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full border ${found
       ? 'bg-green-50 text-green-700 border-green-200'
       : 'bg-red-50 text-red-600 border-red-200'
-  }`}>
+    }`}>
     {found ? <CheckCircle2 size={10} /> : <X size={10} />}
     {word}
   </span>
@@ -95,11 +94,11 @@ const Toast = ({ message, type, onClose }) => {
 
 const AIPanel = () => {
   const {
-      currentResumeData,
-      updateJobDescription,
-      setAIGenerating,
-      applyAIResume,
-      applyATSAnalysis,
+    currentResumeData,
+    updateJobDescription,
+    setAIGenerating,
+    applyAIResume,
+    applyATSAnalysis,
   } = useResumeStore();
 
   const { jobDescription, isAIGenerating, atsScore, categoryScores, missingKeywords, matchedKeywords, suggestedSkills, aiImprovements } = currentResumeData;
@@ -209,13 +208,12 @@ const AIPanel = () => {
           </div>
           <div className="flex items-center gap-2">
             {!isJdEmpty && atsScore !== null && (
-              <span className={`text-xs font-black px-3 py-1 rounded-full ${
-                atsScore >= 83 ? 'bg-green-100 text-green-700' :
-                atsScore >= 71 ? 'bg-emerald-100 text-emerald-700' :
-                atsScore >= 56 ? 'bg-amber-100 text-amber-700' :
-                atsScore >= 36 ? 'bg-orange-100 text-orange-700' :
-                'bg-red-100 text-red-600'
-              }`}>
+              <span className={`text-xs font-black px-3 py-1 rounded-full ${atsScore >= 83 ? 'bg-green-100 text-green-700' :
+                  atsScore >= 71 ? 'bg-emerald-100 text-emerald-700' :
+                    atsScore >= 56 ? 'bg-amber-100 text-amber-700' :
+                      atsScore >= 36 ? 'bg-orange-100 text-orange-700' :
+                        'bg-red-100 text-red-600'
+                }`}>
                 ATS {atsScore}%
               </span>
             )}
