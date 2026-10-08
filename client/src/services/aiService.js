@@ -4,7 +4,7 @@
  * scoring, and template suggestions, securing the API provider details.
  */
 
-const API_BASE_URL = 'http://localhost:5000/api/ats';
+const API_BASE_URL = `${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api/ats`;
 
 const optimizeCache = new Map();
 const scoreCache = new Map();

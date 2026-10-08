@@ -45,6 +45,7 @@ async function callGroqBackend(systemPrompt, userPrompt) {
 
     return JSON.parse(raw);
   } catch (err) {
+    console.error('LLM Service Error:', err.message, err.status || '', err.payload || ''); 
     const sanitizedError = new Error('AI analysis is temporarily unavailable. Please try again in a minute.');
     sanitizedError.isAiError = true;
     sanitizedError.originalError = err;

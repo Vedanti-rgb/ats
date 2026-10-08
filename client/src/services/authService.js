@@ -65,6 +65,7 @@ export const resendOTP = async (email) => {
 export const login = async (email, password) => {
   const response = await fetch(`${API_URL}/login`, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -83,8 +84,23 @@ export const login = async (email, password) => {
   localStorage.setItem('token', data.token);
   return data;
 };
+export const refreshAccessToken = async () => {
+  const response = await fetch(`${API_URL}/refresh`, {
+    method: 'GET',
+    credentials: 'include',   // required to send the httpOnly cookie
+  });
 
-export const logout = () => {
+  if (!response.ok) {
+    throw new Error('Session expired');
+  }
+
+  const data = await response.json();
+  localStorage.setItem('token', data.token);
+  return data.token;
+};
+
+export const logout = async () => {
+  await fetch(`${API_URL}/logout`, { method: 'POST', credentials: 'include' });
   localStorage.removeItem('token');
   localStorage.removeItem('pendingEmail');
 };
